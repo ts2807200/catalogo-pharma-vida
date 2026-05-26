@@ -1,0 +1,4685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo Pharma Vida</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      padding: 40px;
+      background: #f5f5f5;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .resultado {
+      background: white;
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .resultado:hover {
+      background: #eaeaea;
+    }
+
+    .vazio {
+      text-align: center;
+      color: #777;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🔍 Busca de Medicamentos</h1>
+
+<input type="text" id="busca" placeholder="Digite o nome do medicamento...">
+<div id="resultados"></div>
+
+<script>
+
+// 🔥 COLE SEU CSV AQUI
+const csv = `
+Abies Nigra CH3 
+Abies Nigra CH4 
+Abroma Augusta  6CH
+Abroma Augusta  6CH
+Abrotanum 11ch
+Abrus Precatorius 5ch
+Abtus Precatarius 11ch
+Ac Boricum  4ch
+Ac Nitricum 7ch
+Ac Nitricum 7ch
+Ac Salicilicum  5ch
+Ac Sulphuricum  5ch
+Acaros  29ch
+Ácaros  9ch
+Acetil Colina 10M
+Acetil Colina 12 CH
+Acetil Colina 1m
+Acetil Colina 200 CH
+Acetil Colina 30 CH
+Acetil Colina 6 CH
+Ácido Phosphorico 6 DH
+Ácido Phosphorico 7 DH
+Ácido Phosphorico 8 DH
+Acido Phosphoricum  1m/4
+Acido Phosphoricum  
+Acidum  Nitricum  999fc
+Acidum Fluoricum  1 M
+Acidum Fluoricum  11 CH
+Acidum Fluoricum  12 CH
+Acidum Fluoricum  199 CH
+Acidum Fluoricum  200 CH
+Acidum Fluoricum  29 CH
+Acidum Fluoricum  30 CH
+Acidum Fluoricum  999 FC
+Ácidum Lacticum 8 DH
+Acidum Nitricum 1 m
+Acidum Nitricum 199 CH
+Acidum Nitricum 199 CH
+Acidum Nitricum 200 CH
+Acidum Nitricum 29 CH
+Acidum Nitricum 30 CH
+Ácidum Nitricum 1 SD
+Ácidum Nitricum 2 SD
+Ácidum Nitricum 3 SD
+Ácidum Nitricum 4 SD
+Ácidum Nitricum 5 SD
+Acidum Phosphoricum 10 CH
+Acidum Phosphoricum 11 CH
+Acidum Phosphoricum 12 CH
+Acidum Phosphoricum 199 CH
+Acidum Phosphoricum 200 CH
+Acidum Phosphoricum 29 CH
+Acidum Phosphoricum 30 CH
+Acidum Phosphoricum 4 CH
+Acidum Phosphoricum 5 CH
+Acidum Phosphoricum 6 CH
+Acidum Phosphoricum 7 CH
+Acidum Phosphoricum 8 CH
+Acidum Phosphoricum 9 CH
+Acidum Phosphoricum SD1
+Acidum Phosphoricum SD2
+Acidum Phosphoricum SD3
+Acidum Phosphoricum SD4
+Acidum Phosphoricum SD5
+Ácidum Phosphoricum 1 SD
+Ácidum Phosphoricum 2 SD
+Ácidum Phosphoricum 3 SD
+Ácidum Phosphoricum 4 SD
+Ácidum Phosphoricum 5 SD
+Acne Nosódio  29ch
+Aconitum  1 SD
+Aconitum  10dh
+Aconitum  18d
+Aconitum  199ch
+Aconitum  1dh
+Aconitum  2 SD
+Aconitum  200ch
+Aconitum  201ch
+Aconitum  2d
+Aconitum  3 SD
+Aconitum  3ch
+Aconitum  3dh
+Aconitum  4 SD
+Aconitum  4ch
+Aconitum  5 SD
+Aconitum  5ch
+Aconitum  8ch
+Aconitum  1M
+Aconitum  999FC
+Aconitum  CH29
+Aconitum  CH30
+Aconitum  10 CH
+Aconitum  10 CH
+Aconitum  11 CH
+Aconitum  12 CH
+Aconitum  199 CH
+Aconitum  200 CH
+Aconitum  4 CH
+Aconitum  4 CH
+Aconitum  4 CH
+Aconitum  5 CH
+Aconitum  5 CH
+Aconitum  6 CH
+Aconitum  6 CH
+Aconitum  7 CH
+Aconitum  8 CH
+Aconitum  9 CH
+Aconitum Napellus 10 DH
+Aconitum Napellus 4 DH
+Aconitum Napellus DH19
+Aconitum Napellus DH20
+Actaea  Racemosa  6ch
+Actaea  Spicata 14ch
+Actaea Racemosa 11ch
+Actaea Racemosa 12ch
+Actaea Racemosa 20ch
+Actaea Racemosa 60ch
+Actaea Racemosa 70ch
+Actaea Spicata  5ch
+Actaea Spicata  6D
+Actaea Spicata  CH5
+Actaea Spicata  6D
+Acth  1 M
+Acth  10  M
+Acth  200 CH
+Acth  9 CH
+Acth  30 CH
+Adonis Vernalis CH2
+Adrenalinum 999fc
+Aesculus  CH3
+Aesculus  CH4
+Aesculus Hipo 12ch
+Aesculus Hipo 4d
+Aesculus Hipo 5ch
+Aesculus Hipocastanum 1 CH
+Aesculus Hipocastanum 2 CH
+Aesculus Hippocastanum  CH5
+Aethusa Cynapium  15ch
+Aethusa Cynapium  199 CH
+Aethusa Cynapium  210ch
+Aethusa Cynapium  220ch
+Aethusa Cynapium  29 CH
+Aethusa Cynapium  30 CH
+Aethusa Cynapium  5ch
+Aethusa Cynapium  77c
+Aethusa Cynapium  8ch
+Agaricus muscarius  16ch
+Agaricus Muscarius  199 CH
+Agaricus Muscarius  29 CH
+Agaricus Muscarius  30 CH
+Agaricus muscarius  35ch
+Agaricus muscarius  3ch
+Agaricus muscarius  4 DH
+Agaricus muscarius  4d
+Agaricus muscarius  5ch
+Agaricus muscarius  5dh
+Agaricus Muscarius  CH3
+Agaricus Muscarius  CH5
+Agaricus Muscarius  DH5
+Agnus Castus  11 CH
+Agnus Castus  12 CH
+Agnus Castus  2 CH
+Agnus castus  2 DH
+Agnus Castus  200 CH
+Agnus castus  23ch
+Agnus Castus  3 CH
+Agnus Castus  4 CH
+Agnus castus  4 DH
+Agnus Castus  5 CH
+Agnus castus  5 DH
+Agnus Castus  6 CH
+Agnus castus  6 DH
+Agnus Castus  9 CH
+Agoniada  29ch
+Agroperis Num 2ch
+Alcaçus 2ch
+Alcaçus 3ch
+Alcaçus 4ch
+Alcaçus 5ch
+Alcaçus 6ch
+Alendronato de Sódio  5ch
+Aletris Farinosa  11 CH
+Aletris Farinosa  11 CH
+Aletris Farinosa  29 CH
+Aletris Farinosa  30 CH
+Alfafa  1ch
+Alfafa  2ch
+Alfalfa CH1
+Alfalfa DH1
+Allium Cepa 1 CH
+Allium Cepa 11 CH
+Allium Cepa 12 CH
+Allium Cepa 19ch
+Allium Cepa 28 CH
+Allium Cepa 29 CH
+Allium Cepa 2dh
+Allium Cepa 30 CH
+Allium Cepa 31ch
+Allium Cepa 3d
+Allium Cepa 4 CH
+Allium Cepa 4ch
+Allium Cepa 4ch
+Allium Cepa 5ch
+Allium Cepa 6 CH
+Allium Cepa 9 CH
+Allium Cepa 9ch
+Allium Cepa CH2
+Allium Sativum  1dh
+Allium Sativum  2dh
+Allium Sativum  4ch
+Allium Sativum  8ch
+Aloe Socotrina  3 DH
+Aloe Socotrina  4 DH
+Aloe Socotrina  5 DH
+Aloe Socotrina  6 DH
+Aloe Socrotrina 2 CH
+Aloe Socrotrina 3 CH
+Aloe Socrotrina 4 CH
+Aloe Socrotrina 5 CH
+Aloe Socrotrina 6 CH
+Aloxano 7ch
+Alumina 30ch
+Alumina Sat 29 CH
+Alumina Sat 30 CH
+Alumina Sat 5 CH
+Alumina Sat 5 CH
+Alumina Sat 6 CH
+Alumina Sat 6 CH
+Aluminium Metall  12ch
+Aluminium Metall  59ch
+Aluminium Metallicum  1.999FC
+Aluminium Metallicum  10M
+Aluminium Metallicum  199CH
+Aluminium Metallicum  1M
+Aluminium Metallicum  2.999FC
+Aluminium Metallicum  200CH
+Aluminium Metallicum  3.999FC
+Aluminium Metallicum  4.999FC
+Aluminium Metallicum  5.999FC
+Aluminium Metallicum  6.999FC
+Aluminium Metallicum  7.999FC
+Aluminium Metallicum  8.999FC
+Aluminium Metallicum  9.999FC
+Aluminium Metallicum  999FC
+Aluminum metalicum  199 CH
+Aluminum metalicum  1M
+Aluminum metalicum  200 CH
+Aluminum metalicum  200 CH
+Aluminum metalicum  29 CH
+Aluminum metalicum  29 CH
+Aluminum metalicum  30 CH
+Aluminum metalicum  30 CH
+Aluminum metalicum  999 FC
+Ambra Gricea  29 CH
+Ambra Gricea  5 CH
+Ambra Gricea  6 CH
+Ambra Gricea  9 CH
+Ambra grisea  6ch
+Ambrosia  5ch
+Ambrosia Artemisafolia  4ch
+Ammonium  Muriaticum  10 DH
+Ammonium  Muriaticum  11 DH
+Ammonium  Muriaticum  8 DH
+Ammonium  Muriaticum  9 DH
+Ammonium Carbonicum 11CH
+Ammonium Carbonicum 12CH
+Ammonium Carbonicum 199 FC
+Ammonium Carbonicum 200 FC
+Ammonium Carbonicum 29CH
+Ammonium Carbonicum 30CH
+Ammonium Carbonicum 6CH
+Ammonium M  12ch
+Amonium Mur 8ch
+Anacardium  29ch
+Anacardium  30ch
+Anacardium Ocidentale 5ch
+Anacardium Orientale  199 CH
+Anacardium Orientale  20 CH
+Anacardium Orientale  200 CH
+Anacardium Orientale  29 CH
+Anacardium orientale  2dh
+Anacardium Orientale  4 CH
+Anagalis Arvensis 2ch
+Anas barbariae  199ch
+Androctonus Amoreuxi Hebraeus 199fc
+Androcur  1 M
+Androcur  10 M
+Androcur  11 CH
+Androcur  199 CH
+Androcur  200 CH
+Androcur  29 CH
+Androcur  30 CH
+Androcur  999 FC
+Androcur  9999 FC
+Anemonis Pratensis  29 CH
+Anemonis Pratensis  5 CH
+Angelica Sinensis 29 CH
+Angelica Sinensis 30 CH
+Anisum Stellatum  CH1
+Annona Muricata 199 FC
+Annona Muricata 29 CH
+Annona Muricata 4 CH
+Ant Crudum  29ch
+Anthracinum 11ch
+Antimonio Tartaricum  10 DH
+Antimonio Tartaricum  3 CH
+Antimonium crudum 1 SD
+Antimonium Crudum 12ch
+Antimonium crudum 2 SD
+Antimonium crudum 3 SD
+Antimonium Crudum 31ch
+Antimonium crudum 4 SD
+Antimonium Crudum 5 CH
+Antimonium crudum 5 SD
+Antimonium Crudum 7ch
+Antimonium Crudum 8 CH
+Antimonium Crudum 999FC
+Antimonium Crudum CH11
+Antimonium Crudum CH12
+Antimonium Crudum CH20
+Antimonium Crudum CH29
+Antimonium Crudus 8 DH
+Antimonium metallicum 8ch
+Antimonium Tartaricum 1 SD
+Antimonium Tartaricum 2 SD
+Antimonium Tartaricum 3 SD
+Antimonium tartaricum 3ch
+Antimonium Tartaricum 4 SD
+Antimonium Tartaricum 5 SD
+Antimonium tartaricum 
+Antracinum  20ch
+Antracinum  25ch
+Antracinum  29ch
+Apis Melifica 199 CH
+Apis Melifica 201 CH
+Apis Melifica 29 CH
+Apis Melifica 3 Ch 
+Apis Melifica 4 CH
+Apis Melifica 5 CH
+Apis Melifica 6 CH
+Apis Melifica 6 CH
+Apis mellifica  10lm
+Apis mellifica  12ch
+Apis mellifica  1ch
+Apis mellifica  1dh
+Apis Mellifica  2 DH
+Apis mellifica  200ch
+Apis mellifica  20ch
+Apis mellifica  29ch
+Apis mellifica  2ch
+Apis mellifica  2ch
+Apis mellifica  3d
+Apis mellifica  4dh
+Apis mellifica  54ch
+Apis mellifica  5ch
+Apis mellifica  61ch
+Apis mellifica  6ch
+Apis mellifica  8lm
+Apis mellifica  9lm
+Apis Mellifica  CH200
+Apis Mellifica  CH30 
+Apis Mellifica  DH18
+Apis Mellifica  DH19
+Aranea  CH6
+Arcenicum Album 1 M
+Arcenicum Album 12 CH
+Arcenicum Album 198 CH
+Arcenicum Album 199 CH
+Arcenicum Album 199 CH
+Arcenicum Album 199 CH
+Arcenicum Album 200 CH
+Arcenicum Album 28 CH
+Arcenicum Album 29 CH
+Arcenicum Album 30 CH
+Arcenicum Album 5 CH
+Arcenicum Album 6 CH
+Arcenicum Album 6 CH
+Arcenicum Album 7 CH
+Arcenicum Album 8 CH
+Arcenicum Album 9 CH
+Arcenicum Album 999 FC
+Areca Catechu 11 CH
+Areca Catechu 12 CH
+Arg Nitricum  30ch
+Arg Nitricum  5ch
+Argenitum Nitricum  199 CH
+Argenitum Nitricum  200 CH
+Argentum Metallicum 12 CH
+Argentum Metallicum 199 CH
+Argentum Metallicum 200 CH
+Argentum Metallicum 29 CH
+Argentum Metallicum 3 CH
+Argentum Metallicum 30 CH
+Argentum metallicum 5ch
+Argentum metallicum 8ch
+Argentum Metallicum 1 M
+Argentum Metallicum 10 M
+Argentum Metallicum 1999 FC
+Argentum Metallicum 2999 FC
+Argentum Metallicum 3999 FC
+Argentum Metallicum 4999 FC
+Argentum Metallicum 5999 FC
+Argentum Metallicum 6999 FC
+Argentum Metallicum 7999 FC
+Argentum Metallicum 8999 FC
+Argentum Metallicum 999 FC
+Argentum Metallicum 9999 FC
+Argentum Nitric 10 DH
+Argentum Nitric 9 DH
+Argentum Nitricum 11 CH
+Argentum Nitricum 12ch
+Argentum Nitricum 19dh
+Argentum Nitricum 2 CH
+Argentum Nitricum 200ch
+Argentum Nitricum 29 CH
+Argentum Nitricum 29 CH
+Argentum Nitricum 29ch
+Argentum Nitricum 30 CH
+Argentum Nitricum 30 CH
+Argentum Nitricum 305ch
+Argentum Nitricum 310ch
+Argentum Nitricum 4 CH
+Argentum Nitricum 5 CH
+Argentum Nitricum 5 CH
+Argentum Nitricum 5ch
+Argentum Nitricum 6 CH
+Argentum Nitricum 7 CH
+Argentum Nitricum 8ch
+Argentum Nitricum 9ch
+Argentum Nitricum 1 M
+Argentum Nitricum 10M
+Argentum Nitricum 4999FC
+Argentum Nitricum 999 FC
+Argentum Nitricum 9999FC
+Argentum Nitricum DH10
+Argentum Nitricum 4999FC
+Argentum Nitricum 9999FC
+Argentum Nitricum 10M
+Aristolochia Clematis 4ch
+Aristolochia Clematis 8ch
+Aristolochia Clematis 
+Arnica  1 DH
+Arnica  1 SD
+Arnica  10dh
+Arnica  11ch
+Arnica  12ch
+Arnica  14ch
+Arnica  1d
+Arnica  2 DH
+Arnica  2 SD
+Arnica  29ch
+Arnica  2ch
+Arnica  2dh
+Arnica  2dh
+Arnica  3 DH
+Arnica  3 SD
+Arnica  30ch
+Arnica  3ch
+Arnica  3d
+Arnica  4 DH
+Arnica  4 SD
+Arnica  4ch
+Arnica  4d
+Arnica  5 SD
+Arnica  501ch
+Arnica  5d
+Arnica  5m
+Arnica  60ch
+Arnica  6ch
+Arnica  6dh
+Arnica  999FC
+Arnica  1M
+Arnica  CH 200
+Arnica Montana  1 CH
+Arnica Montana  16 CH
+Arnica Montana  19 CH
+Arnica Montana  199 CH
+Arnica Montana  2 CH
+Arnica Montana  20 CH
+Arnica Montana  200 CH
+Arnica Montana  28 CH
+Arnica Montana  29 CH
+Arnica Montana  3 CH
+Arnica Montana  30 CH
+Arnica Montana  4 CH
+Arnica Montana  5 CH
+Arnica Montana  6 CH
+Ars Iodatum 19ch
+Arsenico Iodatum  Ch11
+Arsenicum Album 1 SD
+Arsenicum Album 10m1
+Arsenicum Album 14ch
+Arsenicum Album 16d
+Arsenicum Album 199ch
+Arsenicum Album 1m2
+Arsenicum Album 2 SD
+Arsenicum Album 29ch
+Arsenicum Album 29dh
+Arsenicum Album 3 SD
+Arsenicum Album 30ch
+Arsenicum Album 4 SD
+Arsenicum Album 41ch
+Arsenicum Album 4ch
+Arsenicum Album 4ch
+Arsenicum Album 5 DH
+Arsenicum Album 5 SD
+Arsenicum Album 5999fc
+Arsenicum Album 5ch
+Arsenicum Album 6ch
+Arsenicum Album 6ch
+Arsenicum Album 7ch
+Arsenicum Album 81ch
+Arsenicum Album 95d
+Arsenicum Album 500 FC
+Arsenicum Album DH16
+Arsenicum Iodatum 19ch
+Arsenicum Iodatum 20ch
+Arsenicum Iodatum CH11
+Arsenicum Iodatum CH12
+Arsenicum Iodatum CH20
+Arsenicum Iodatum CH29
+Arsenicum Sulphuratum CH6 
+Arsenicum Sulphuricum 5ch
+Artemisia CH1
+Artemisia Vulgaris  5 CH
+Artemisia Vulgaris  6 CH
+Articulação 16ch
+Articulação Coxo Femural  34ch
+Articulação Joelho  9ch
+Arum Trip 
+Arum Triphi 29ch
+Arum Triphyllum 30ch
+Arum Triphyllum 5ch
+Arum Triphyllum 6ch
+Arundo Donax  5ch
+Asa Foetida 15dh
+Asa Foetida 9dh
+Asa Foetida DH19
+Asa Foetida DH20
+Asa Foetina 5 CH
+Asarum Europaeum  3ch
+Ascaridinum 11 CH
+Ascaridinum 29 CH
+Ascaridinum 30 CH
+Aspergillus Niger 11 CH
+Aspergillus Niger 199 CH
+Aspergillus Niger 29 CH
+Aspergillus Niger 9999 FC
+Aspergillus Niger Anacardium
+Atrazina Atanor (Iso) 1 M
+Atrazina Atanor (Iso) 10 M
+Atrazina Atanor (Iso) 11 CH
+Atrazina Atanor (Iso) 199 CH
+Atrazina Atanor (Iso) 200 CH
+Atrazina Atanor (Iso) 29 CH
+Atrazina Atanor (Iso) 30 CH
+Atrazina Atanor (Iso) 999 FC
+Atrazina Atanor (Iso) 9999 FC
+Atropinum Sulphuricum 5ch
+Aurum Arsenicosum 198ch
+Aurum Metallicum  29
+Aurum Metallicum  199999
+Aurum Metallicum  10 DH
+Aurum Metallicum  10 DH
+Aurum Metallicum  11 CH
+Aurum Metallicum  11 CH
+Aurum Metallicum  11 DH
+Aurum Metallicum  11ch
+Aurum Metallicum  12 CH
+Aurum Metallicum  12 DH
+Aurum Metallicum  199 CH
+Aurum Metallicum  29 CH
+Aurum Metallicum  30 CH
+Aurum Metallicum  30ch
+Aurum Metallicum  399999fc
+Aurum Metallicum  5ch
+Aurum Metallicum  6 CH
+Aurum Metallicum  6ch
+Aurum Metallicum  7 CH
+Aurum Metallicum  8 CH
+Aurum Metallicum  9 CH
+Aurum Metallicum  9 DH
+Aurum Metallicum  9 DH
+Aurum Metallicum  9 DH
+Aurum Metallicum  1M
+Aurum Metallicum  999FC
+Aurum Mur Natronatum  199ch
+Aurum Muria Natronatum  10 M
+Aurum Muria Natronatum  11 CH
+Aurum Muria Natronatum  199 CH
+Aurum Muria Natronatum  199 CH
+Aurum Muria Natronatum  200 CH
+Aurum Muria Natronatum  29 CH
+Aurum Muria Natronatum  30 CH
+Aurum Muria Natronatum  999 FC
+Aurum Muria Natronatum  9999 FC
+Aurum Muriaticum  10ch
+Aurum Muriaticum  12ch
+Aurum Muriaticum  4ch
+Aurum Muriaticum  9ch
+Aurum Muriaticum  11 DH
+Aurum Muriaticum  12 DH
+Aurum N 9ch
+Aurum Trip  201ch
+Ava Foetida CH6
+Ava Foetida CH6
+Aveloz  5ch
+Avena  Sativa Passiflora Valeriana  1 DH
+Avena Sativa  1 DH
+Avena Sativa  15ch
+Avena Sativa  2 DH
+Avena Sativa  2 DH
+Avena Sativa  2d
+Avena Sativa  3 DH
+Avena Sativa  4 CH
+Avena Sativa  401ch
+Avena Sativa  40ch
+Avena Sativa  41ch
+Avena Sativa  5 CH
+Avena Sativa  5 DH
+Avena Sativa  59ch
+Avena Sativa  6 CH
+Avena Sativa  6 DH
+Avena Sativa  8 DH
+Avena Sativa  80ch
+Avena Sativa  9 DH
+Avena Sativa  90ch
+Avena Sativa  CH1
+Avena Sativa  CH11
+Avena Sativa  CH12
+Avena Sativa  CH20
+Avena Sativa  CH29
+Avena Sativa  CH30
+Bacgen Isoterapico  29 CH
+Bacilinum 11ch
+Bacillinum  29ch
+Bacillinum  9999 FC
+Bacillinum  CH30
+Baço  9ch
+Badiaga 25ch
+Badiaga 29ch
+Badiaga 29ch
+Bambusa 199fc
+Baptisia  29ch
+Baptisia  30ch
+Barita C  200ch
+Barita Carbonica  100m
+Barita Carbonica  10m/1
+Barita Muriática  4dh
+Barita Muriática  5ch
+Barita Phophorica 2ch
+Barita Phophorica 6ch
+Baryta Carbonica  10m
+Baryta Carbonica  15dh
+Baryta Carbonica  18dh
+Baryta Carbonica  29 CH
+Baryta Carbonica  30 CH
+Baryta Carbonica  30ch
+Baryta Carbonica  50m
+Baryta Carbonica  5ch
+Baryta Carbonica  5ch
+Baryta Carbonica  5ch
+Baryta Carbonica  6 CH
+Baryta Carbonica  6ch
+Baryta Carbonica  CH 199
+Baryta Carbonica  CH 200
+Baryta Carbonica  CH11
+Baryta Carbonica  CH12
+Baryta Carbonica  DH19
+Baryta Carbonica  DH20
+Baryta Carbônica  13 DH
+Baryta Carbônica  13 DH
+Baryta Carbônica  14 DH
+Baryta Carbônica  15 DH
+Baryta Carbônica  16 DH
+Baryta Carbônica  17 DH
+Baryta Carbônica  20 DH
+Baryta Carbônica  9 DH
+Baryta Iodata 5 CH
+Baryta Muriatica  11 CH
+Baryta Muriatica  3 CH
+BDNF  1 M
+BDNF  10 M
+BDNF  CH200
+Bdnf (Isot) CH30
+Bdnf (Isoterápico)  CH11
+Bdnf (Isoterápico)  CH12
+Bdnf (Isoterápico)  CH29
+Beclosol  1 M
+Beclosol  10 M
+Beclosol  CH200
+Beclosol  CH30
+Belladona 599999
+Belladona 1 SD
+Belladona 199ch
+Belladona 1m
+Belladona 1m999
+Belladona 2 SD
+Belladona 200ch
+Belladona 200m1
+Belladona 29ch
+Belladona 2dh
+Belladona 3 SD
+Belladona 35ch
+Belladona 3ch
+Belladona 4 SD
+Belladona 49999fc
+Belladona 5 SD
+Belladona 5ch
+Belladona 5ch
+Belladona 5m/10
+Belladona 5m/12
+Belladona 8ch
+Belladonna  1 CH
+Belladonna  2 CH
+Belladonna  29 CH
+Belladonna  3 CH
+Belladonna  30 CH
+Belladonna  5 CH
+Belladonna  6 CH
+Belladonna  CH11
+Belladonna  CH12
+Belladonna  CH17
+Belladonna  CH18
+Belladonna  CH200
+Belladonna  CH200
+Belladonna  CH6
+Belladonna  CH6
+Belladonna  CH6
+Belladonna  CH200
+Belladonna  CH200
+Belladonna  CH6
+Benzocaina isto 1 M
+Benzocaina isto 1 M
+Benzocaina isto 10 CH
+Benzocaina isto 10 M
+Benzocaina isto 11 CH
+Benzocaina isto 12 CH
+Benzocaina isto 199 FC
+Benzocaina isto 200 CH
+Benzocaina isto 29 CH
+Benzocaina isto 30 CH
+Benzocaina isto 999 FC
+Benzocaina isto 9999 FC
+Berberis Vulgaris 199ch
+Berberis Vulgaris 29ch
+Berberis Vulgaris 30ch
+Berberis Vulgaris 3d
+Berberis Vulgaris 4ch
+Berberis Vulgaris 50ch
+Berberis Vulgaris CH29
+Berberis Vulgaris CH30
+Berleris Vulgares 11 CH
+Berleris Vulgares 12 CH
+Berleris Vulgares 5 CH
+Berleris Vulgares 6 CH
+Berleris Vulgares 9 CH
+Betacaroteno  17ch
+Betacaroteno  19ch
+Bexiga  10ch
+Bismutum Met  5ch
+Bismutum Sub  7ch
+Blatta  100ch
+Blatta  29ch
+Blatta  6ch
+Blatta Orientalis 29 CH
+Blatta Orientalis 3 CH
+Blatta Orientalis 30 CH
+Blatta Orientalis 4 CH
+Boldo d2
+Borax 11ch
+Borax 28ch
+Borax 29ch
+Borax 30ch
+Borax 99ch
+Borax  Veneto 12dh
+Borax Veneta  04 CH
+Borax Veneta  05 CH
+Borax Veneta  29 CH
+Borax Veneta  30 CH
+Borax Veneta  6 CH
+Bothropís CH5
+Bovista Gigantea  3CH
+Bromazepam  10 M
+Bromazepam  12 CH
+Bromazepam  199 FC
+Bromazepam  200 CH
+Bromazepam  29 CH
+Bromazepam  30 CH
+Bromazepam  999 FC
+Bromazepam  9999 FC
+Bromium 16ch
+Bromium 5ch
+Bryonia 1 SD
+Bryonia 14ch
+Bryonia 1d
+Bryonia 1M40
+Bryonia 1m50
+Bryonia 2 SD
+Bryonia 29ch
+Bryonia 2ch
+Bryonia 3 SD
+Bryonia 3ch
+Bryonia 3ch
+Bryonia 4 SD
+Bryonia 4ch
+Bryonia 5 SD
+Bryonia 5ch
+Bryonia 8d
+Bryonia 9ch
+Bryonia d13
+Bryonia d2
+Bryonia SD6 
+Bryonia SD7 
+Bryonia SD8 
+Bryonia Alba  14 DH
+Bryonia Alba  199 CH
+Bryonia Alba  2 CH
+Bryonia Alba  29 CH
+Bryonia Alba  29ch
+Bryonia Alba  3 CH
+Bryonia Alba  30 CH
+Bryonia Alba  3lm
+Bryonia Alba  4 CH
+Bryonia Alba  4 DH
+Bryonia Alba  4lm
+Bryonia Alba  5 CH
+Bryonia Alba  5lm
+Bryonia Alba  6 CH
+Bryonia Alba  6ch
+Bryonia Alba  7lm
+Bryonia Alba  8lm
+Bryonia Alba  200FC
+Bryonia Alba  DH13
+Bryonia Alba  DH14
+Bryophilum  7d
+Bryophilym  29ch
+Bryophlum 4d
+Bryophlum 6dh
+Bryophylum  5d
+Bryophylum  8ch
+Bufo Rana CH5
+Cactus Grandif  12ch
+Cactus Grandif  19ch
+Cactus Grandif  29ch
+Cactus Grandif  2dh
+Cactus Grandiflorus CH1
+Cactus Grandiflorus CH2
+Cactus Grandiflorus CH3
+Cactus Grandiflorus CH4
+Cactus Grandiflorus DH1
+Cadmium Metallicum  29 CH
+Cadmium Metallicum  6 CH
+Cadmium Metallicum  7 CH
+Cadmium Metallicum  8 CH
+Cadmium Metallicum  8 CH
+Cadmium Metallicum  9 CH
+Cadmium Metallicum  9 DH
+Cadmium Metallicum  9 DH
+Caladium Seguinum 5CH
+Calcarea Arsenicosa 1om/1
+Calcarea Carbonica  109
+Calcarea Carbonica  10 DH
+Calcarea Carbonica  11 DH
+Calcarea Carbonica  11 DH
+Calcarea Carbonica  12 DH
+Calcarea Carbonica  12 DH
+Calcarea Carbonica  12ch
+Calcarea Carbonica  12dh
+Calcarea Carbonica  18 DH
+Calcarea Carbonica  1m1
+Calcarea Carbonica  1m29
+Calcarea Carbonica  1m40
+Calcarea Carbonica  1m41
+Calcarea Carbonica  20 DH
+Calcarea Carbonica  200ch
+Calcarea Carbonica  349ch
+Calcarea Carbonica  369ch
+Calcarea Carbonica  49ch
+Calcarea Carbonica  50000fc
+Calcarea Carbonica  5ch
+Calcarea Carbonica  69ch
+Calcarea Carbonica  799fc
+Calcarea Carbonica  9 DH
+Calcarea Carbonica  999fc
+Calcarea Carbonica  9ch
+Calcarea Carbonica  d18
+Calcarea Carbonica  DH20
+Calcarea Fluorica 10 DH
+Calcarea Fluorica 11 DH
+Calcarea Fluorica 12 DH
+Calcarea Fluorica 19ch
+Calcarea Fluorica 55ch
+Calcarea Fluorica 5ch
+Calcarea Fluorica 9 DH
+Calcarea Fluorica 9dh
+Calcarea Fluorica 
+Calcarea Phophorica 10 DH
+Calcarea Phophorica 9 DH
+Calcarea Phophorica 9 DH
+Calcarea Phophorica 9 DH
+Calcarea Phosphorica  11ch
+Calcarea Phosphorica  11d
+Calcarea Phosphorica  12ch
+Calcarea Phosphorica  199ch
+Calcarea Phosphorica  1m
+Calcarea Phosphorica  5ch
+Calcarea Phosphorica  8d
+Calcarea Phosphorica  9dh
+Calcarea Phosphorica  CH23
+Calcarea Phosphorica  CH24
+Calcarea Phosphorica  DH12
+Calcarea Silicata CH30
+Calcarea Silicata SD2 
+Calcarea Silicata SD3 
+Calcarea Silicata SD30 
+Calcarea Silicata SD31 
+Calcarea Silicata SD32 
+Calcarea Silicata SD33 
+Calcarea Silicata SD34 
+Calcarea Silicata SD35 
+Calcarea Silicata SD4 
+Calcarea Silicata SD5 
+Calcarea Silicata SD6 
+Calcarea Silicata SD7 
+Calcarea Silicata SD8 
+Calcarea Silicata SD9 
+Calcarea Sulfurica  10 DH
+Calcarea Sulfurica  10 DH
+Calcarea Sulfurica  11 DH
+Calcarea Sulfurica  11 DH
+Calcarea Sulfurica  12 DH
+Calcarea Sulfurica  9 DH
+Calcarea Sulphurica CH30
+Calcarea Suph 11ch
+Calcarea Suph 12ch
+Calcarea Suph 12d
+Calcária carbonica  1 M
+Calcária carbonica  11 CH
+Calcária carbonica  12 CH
+Calcária carbonica  199 CH
+Calcária carbonica  200 CH
+Calcária carbonica  29 CH
+Calcária carbonica  30 CH
+Calcária carbonica  30 CH
+Calcária carbonica  7 CH
+Calcária carbonica  8 CH
+Calcária carbonica  9 CH
+Calcária carbonica  Anacardium
+Calcária Phosphórica  11 CH
+Calcária Phosphórica  11 CH
+Calcária Phosphórica  12 CH
+Calcária Phosphórica  12 CH
+Calcária Phosphórica  19 CH
+Calcária Phosphórica  199 CH
+Calcária Phosphórica  199 CH
+Calcária Phosphórica  199 CH
+Calcária Phosphórica  200 CH
+Calcária Phosphórica  200 CH
+Calcária Phosphórica  28 CH
+Calcária Phosphórica  29 CH
+Calcária Phosphórica  29 CH
+Calcária Phosphórica  30 CH
+Calcária Phosphórica  30 CH
+Calcária Phosphórica  5 CH
+Calcária Phosphórica  6 CH
+Calcária Phosphórica  6 CH
+Calcária Phosphórica  6 CH
+Calcária Phosphórica  8 CH
+Calcária Phosphórica  9 CH
+Calcária Phosphórica  999 FC
+Calcária Sulfúrica  199 CH
+Calcária Sulfúrica  199 CH
+Calcária Sulfúrica  29 CH
+Calchicum Autumnale 10 CH
+Calchicum Autumnale 10 CH
+Calchicum Autumnale 11 CH
+Calchicum Autumnale 11 CH
+Calchicum Autumnale 12 CH
+Calchicum Autumnale 12 CH
+Calchicum Autumnale 199 CH
+Calchicum Autumnale 200 CH
+Calchicum Autumnale 29 CH
+Calchicum Autumnale 30 CH
+Calchicum Autumnale 6 CH
+Calchicum Autumnale 6 CH
+Calchicum Autumnale 7 CH
+Calchicum Autumnale 8 CH
+Calchicum Autumnale 9 CH
+Calchicum Autumnale 999 FC
+Calchicum Autumnale 9999 FC
+Calcium Silicata  CH29
+Calcium Silicicum 29ch
+Calculi Biliar  9ch
+Calculo Renal 199FC
+Calculo Renal CH 12
+Calculo Renal CH29
+Calculo Renal CH30
+Calculo Renal CH7
+Calculus Biliar 199 FC 
+Calculus Biliar 200  FC
+Calculus Biliar CH11 
+Calculus Biliar CH12 
+Calculus Biliar CH20 
+Calculus Biliar CH29 
+Calculus Biliar CH9 
+Calendula 2dh
+Calêndula 1dh
+Calêndula 5ch
+Calêndula 6dh
+Calendula OFF 10 DH
+Calendula Officinalis CH1
+Calendula Officinalis CH1
+Calendula Officinalis CH11
+Calendula Officinalis CH12
+Calendula Officinalis CH29
+Calendula Officinalis CH30
+Calendula Officinalis CH5
+Calendula Officinalis CH6
+Calotropis  CH1
+Camomila  6dh
+Camphora  1 M
+Camphora  199 CH
+Camphora  199ch
+Camphora  1m
+Camphora  200ch
+Camphora  29 CH
+Camphora  999 FC
+Camphora  9999 FC
+Camphora  999fc
+Canabis Indica  30ch
+Canabis Sativa  11ch
+Canabis Sativa  13ch
+Candida Albicans  CH19
+Candida Albicans  CH20
+Candida Albicans  CH200 
+Cândida Albicans  11 CH
+Cândida Albicans  12 CH
+Cândida Albicans  199 FC
+Cândida Albicans  29 CH
+Cândida Albicans  30 CH
+Cândida Albicans  6 CH
+Cândida Albicans  999 FC
+Cândida Albicans  9999 FC
+Candidad Alb  60ch
+Candidad Alb  6ch
+Cannabis Sativa 29ch
+Cantharis 1 SD
+Cantharis 10ch
+Cantharis 12ch
+Cantharis 2 SD
+Cantharis 29ch
+Cantharis 3 SD
+Cantharis 30ch
+Cantharis 3ch
+Cantharis 4 SD
+Cantharis 4ch
+Cantharis 5 SD
+Cantharis 5ch
+Cantharis CH30
+Cantharis Vesicatoria 29 CH
+Cantharis Vesicatoria 5 CH
+Cantharis Vesicatoria 6 CH
+Cantharis Vesicatoria SD1
+Cantharis Vesicatoria SD2
+Cantharis Vesicatoria SD3
+Cantharis Vesicatoria SD4
+Cantharis Vesicatoria SD5
+Capsicum  5ch
+Carbo  Vegetaris  1 SD
+Carbo  Vegetaris  2 SD
+Carbo  Vegetaris  3 SD
+Carbo  Vegetaris  4 SD
+Carbo  Vegetaris  5 SD
+Carbo Animal  9 ch
+Carbo Animalis  CH11
+Carbo Animalis  CH12
+Carbo Animalis  CH29
+Carbo Animalis  CH30
+Carbo Vegetabilis 1000fc
+Carbo Vegetabilis 10ch
+Carbo Vegetabilis 11ch
+Carbo Vegetabilis 199ch
+Carbo Vegetabilis 1lm
+Carbo Vegetabilis 5ch
+Carbo Vegetabilis 7ch
+Carbo Vegetabilis 9999fc
+Carbo Vegetabilis 999ch
+Carbo Vegetabilis lm1
+Carbo Vegetabilis 
+Carbo Vegetabilis 
+Carbo Vegetabilis CH17
+Carbo Vegetabilis CH18
+Carbo Vegetabilis CH29
+Carbo Vegetalis 10 CH
+Carbo Vegetalis 11 CH
+Carbo Vegetalis 12 CH
+Carbo Vegetalis 200 CH
+Carbo Vegetalis 5 CH
+Carbo Vegetalis 7 CH
+Carbo Vegetalis 8 CH
+Carbo Vegetalis 9 CH
+Carbo Vegetalis 9 DH
+Carcinosinum  10 M
+Carcinosinum  29 CH
+Carcinosinum  299fc
+Carcinosinum  999 FC
+Cardus Mariano  1 DH
+Cardus Mariano  2 DH
+Cardus Marianus 199ch
+Cardus Marianus 1d
+Cardus Marianus 29 CH
+Cardus Marianus 2d
+Cardus Marianus 3d
+Cardus Marianus 5 CH
+Cardus Marianus 5ch
+Cardus Marianus 5d
+Cardus Marianus 6 CH
+Cardus Marianus 8 CH
+Cardus Marianus 9 CH
+Carnosinum  29ch
+Carsinosinum  229ch
+Cartilagem Coxo Fem 14ch
+Cartilagem Total  14ch
+Cartilagem Total  15ch
+Cartilagen Tecido Ósseo 9 CH
+Carum Carvi 13dh
+Carum Carvi 3 DH
+Caseina CH11
+Caseina CH12
+Caseina CH29
+Caseina CH30
+Castoreum 10 DH
+Castoreum 11 DH
+Castoreum 12 DH
+Causticum 1/100m2
+Causticum 1002ch
+Causticum 100ch
+Causticum 11 CH
+Causticum 12 CH
+Causticum 19ch
+Causticum 1m
+Causticum 1M20
+Causticum 200ch
+Causticum 29ch
+Causticum 4ch
+Causticum 999fc
+Causticum 199 FC 
+Causticum 1M 
+Causticum 998 FC 
+Causticum CH29
+Causticum CH30
+Ceanothus 15ch
+Ceanothus 20ch
+Ceanothus 25ch
+Ceanothus 4ch
+Ceanothus CH5
+Ceanothus CH5
+Ceanothus Americanus  199ch
+Cemifuga  10 DH
+Ceonathus 30ch
+Ceonathus 30ch
+Cerebro total 199 CH
+Cerebro total 199 CH
+Cerebro total 19ch
+Cerebro total 200 CH
+Cerebro total 29 CH
+Cerebro Total 29ch
+Cerebro total 30 CH
+Chamomila 1 CH
+Chamomila 1 SD
+Chamomila 10 M
+Chamomila 2 CH
+Chamomila 2 SD
+Chamomila 200 CH
+Chamomila 29 CH
+Chamomila 3 SD
+Chamomila 30 CH
+Chamomila 4 SD
+Chamomila 5 CH
+Chamomila 5 SD
+Chamomila 6 CH
+Chamomila 6 CH
+Chamomilla  1 DH
+Chamomilla  10m/20
+Chamomilla  11ch
+Chamomilla  2 DH
+Chamomilla  3 DH
+Chamomilla  4 DH
+Chamomilla  4ch
+Chamomilla  5 DH
+Chamomilla  5ch
+Chamomilla  5ch
+Chamomilla  7 DH
+Chamomilla  7ch
+Chamomilla  8 DH
+Chelidonium 6CH
+Chelidonium Majus 11 CH
+Chelidonium Majus 12 CH
+Chelidonium Majus 12 DH
+Chelidonium Majus 198 CH
+Chelidonium Majus 200 CH
+Chelidonium Majus 29 CH
+Chelidonium Majus 29ch
+Chelidonium Majus 3 DH
+Chelidonium Majus 30 CH
+Chelidonium Majus 4 DH
+Chelidonium Majus 4 DH
+Chelidonium Majus 5 CH
+Chelidonium Majus 5d
+Chelidonium Majus 6 CH
+Chelidonium Majus 6 CH
+Chelidonium Majus 6 DH
+Chelidonium Majus 80ch
+Chelidonium Majus 9 CH
+Chelidonium Majus 
+Chelidonium Majus 
+Chelone 5 CH
+Chenopodium 11CH
+Chenopodium CH7
+Chimaphila  CH199
+Chimaphila Umbelata 149ch
+Chimaphila Umbellata  DH3
+Chimphyla Umb 2dh
+China 1 SD
+China 2 SD
+China 3 SD
+China 4 SD
+China 5 SD
+China Officinalis 10 CH
+China Officinalis 11 CH
+China Officinalis 12 CH
+China Officinalis 15ch
+China Officinalis 2 CH
+China Officinalis 29 CH
+China Officinalis 29ch
+China Officinalis 3 CH
+China Officinalis 30ch
+China Officinalis 3ch
+China Officinalis 4 CH
+China Officinalis 4ch
+China Officinalis 5 CH
+China Officinalis 50ch
+China Officinalis 5ch
+China Officinalis 5ch
+China Officinalis 6 CH
+China Officinalis 9 CH
+Chininnum Sulphuricum 39ch
+Chininum Sulfuricum 10CH
+Chininum Sulfuricum 11CH
+Chionanthus CH1
+Chionanthus CH2
+Chionanthus CH3
+Chionanthus CH4
+Chionathus Virginica  199ch
+Chlamidia Trachomatis 199 FC
+Chlamidia Trachomatis 29 CH
+Chlamidia Trachomatis 9999 FC
+Chlamidia Trachomatis 9999 FC
+Chlamidia Trachomatis 9999 FC
+Chondodendron Tomentosum  1ch
+Chondrodendron  1CH 
+Chromium Mettalicum 6ch
+Chromium Mettalicum 
+Cicuta Virosa 29 CH
+Cicuta Virosa 30 CH
+Cicuta Virosa 5ch
+Cicuta Virosa 7ch
+Cimicifuga  29 CH
+Cimicifuga  30 CH
+Cimicifuga  199FC
+Cimicifuga  200FC
+Cina  10 DH
+Cina  19ch
+Cina  CH11
+Cina  CH12
+Cina  CH29
+Cina  CH30
+Cina Artemisia  5 CH
+Cina Artemisia  6 CH
+Cina Maritima 4CH 
+Cinnabaris  19d
+Citocinas 1 M
+Citocinas 10 M
+Citocinas 15 CH
+Citocinas 16 CH
+Citocinas 199 FC
+Citocinas 200 CH
+Citocinas 29 CH
+Citocinas 30 CH
+Citocinas 999 FC
+Citocinas 9999 FC
+Citomegalovírus 11 CH
+Citomegalovírus 12 CH
+Citomegalovírus 29 CH
+Citomegalovírus 30 CH
+Citomegalovírus 7 CH
+Citomegalovírus 1 M
+Citomegalovírus 10 M
+Citomegalovírus 200FC
+Citomegalovírus CH11
+Citomegalovírus CH12
+Citomegalovírus CH29
+Citomegalovírus CH30
+Clara de Ovo  19ch
+Clematis Erecta 4 CH
+Clorum  30 CH
+Clostridium 9ch
+Cobaltum metallicum 7ch
+Cocculus Indicus  29 CH
+Cocculus Indicus  3 CH
+Cocculus Indicus  3 CH
+Cocculus Indicus  4 CH
+Cocculus Indicus  5 CH
+Cocculus Indicus  6 CH
+Coccus Cac  19ch
+Coccus Cac  5ch
+Coculus Indicus 2dh
+Coculus Indicus 30ch
+Coculus Indicus 5ch
+Coculus Indicus 6ch
+Coffea Cruda  1 SD
+Coffea Cruda  11ch
+Coffea cruda  198 CH
+Coffea cruda  199 CH
+Coffea Cruda  1d
+Coffea Cruda  2 SD
+Coffea cruda  200 CH
+Coffea cruda  29 CH
+Coffea Cruda  29ch
+Coffea Cruda  3 SD
+Coffea cruda  30 CH
+Coffea Cruda  4 SD
+Coffea cruda  5 CH
+Coffea cruda  5 CH
+Coffea Cruda  5 SD
+Coffea Cruda  50ch
+Coffea cruda  6 CH
+Coffea cruda  7 CH
+Coffea Cruda  ch5
+Coffea Cruda  CH11
+Coffea Cruda  CH12
+Coffea Cruda  SD1
+Coffea Cruda  SD2
+Coffea Cruda  SD3
+Coffea Cruda  SD4
+Coffea Cruda  SD5
+Colchicum 1d
+Colchicum 2d
+Colchicum 3d
+Colchicum 4dh
+Colchicum 5d
+Colchicum 6ch
+Colchicum Altumnale 3 Ch
+Colchina  5 CH
+Colesterinum  199FC
+Colesterinum  200FC
+Colesterinum  CH11
+Colesterinum  CH12
+Colesterinum  CH21
+Colesterinum  CH29
+Colesterinum  CH5
+Colesterinum  CH6
+Colibacillinum  10 CH
+Colibacillinum  11 CH
+Colibacillinum  CH119
+Colibacillinum  CH180
+Colibacillinum  CH199
+Colibacillinum  CH200
+Colibacillinum  CH61
+Colibacillinum  CH99
+Colibacilunum 30ch
+Colibacilunum 40ch
+Colibacilunum 50ch
+Colibacilunum 60ch
+Colina Bitartarato  5ch
+Colocynthis 1 SD
+Colocynthis 11 CH
+Colocynthis 12 CH
+Colocynthis 2 SD
+Colocynthis 29 CH
+Colocynthis 3 SD
+Colocynthis 4 DH
+Colocynthis 4 SD
+Colocynthis 5 CH
+Colocynthis 5 DH
+Colocynthis 5 SD
+Colocynthis 5ch
+Colocynthis 6 CH
+Colocynthis 6 DH
+Colocynthis 9 CH
+Colocynthis Ritalina
+Colocynthis CH7
+Colocynthis SD1
+Colocynthis SD2
+Colocynthis SD3
+Colocynthis SD4
+Colocynthis SD5
+Conchiolinum  CH5
+Conium Mac  12ch
+Conium Mac  19CH
+Conium Mac  20ch
+Conium Maculatum  1 CH
+Conium Maculatum  1 CH
+Conium Maculatum  15 DH
+Conium Maculatum  2 CH
+Conium Maculatum  2 DH
+Conium Maculatum  29 CH
+Conium Maculatum  3 CH
+Conium Maculatum  30 CH
+Conium Maculatum  4 CH
+Conium Maculatum  CH5
+Conium Maculatum  CH11
+Conium Maculatum  CH12
+Conium Maculatum  CH6
+Conium Maculatum  DH16
+Conium Maculatum  SD1
+Conium Maculatum  SD2
+Conium Maculatum  SD3
+Conium Maculatum  SD4
+Conium Maculatum  SD5
+Convallaria Majalis DH13 
+Coralium Rubrum 5ch
+Coralium Rubrum 5ch
+Cordão Umbilical  29 CH
+Cordão Umbilical  30 CH
+Cordia Verb 20ch
+Cordia Verb 29ch
+Cordia Verb 
+Coronavac 29ch
+Coronavac 30ch
+Coronavaccinum  29ch
+Coronavaccinum  
+Coronavaccinum  
+Coroninum 199ch
+Coroninum 199ch
+Coroninum 199ch
+Coroninum 29ch
+Coroninum 30ch
+Coroninum 30ch
+Cortex Suprarenal 198 CH
+Cortex Suprarenal 199 CH
+Cortex Suprarenal 200 CH
+Cortex Suprarenal 29 CH
+cortisol ( Isso)  29 CH
+Crataegus 6ch
+Crocus Sativo 29 CH
+Crocus Sativo 30 CH
+Crocus Sativo 5 CH
+Crocus Sativo 6 CH
+Crocus Sativos  4 DH
+Crocus Sativos  6 DH
+Crocus Sativos  6 DH
+Cromium Metaliccum  6ch
+Cromo 7ch
+Crotalus  30ch
+Crotalus Horridus 29 CH
+Crotalus Horridus 30 CH
+Cubeba  12ch
+Culex 15ch
+Cunium Maculatum  1 SD
+Cunium Maculatum  2 SD
+Cunium Maculatum  3 SD
+Cunium Maculatum  4 SD
+Cunium Maculatum  5 SD
+Cupressus Lawsoniana  5ch
+Cuprum Arsenicosum  CH12 
+Cuprum Arsenicosum  CH20 
+Cuprum Arsenicosum  CH29 
+Cuprum Arsenicosum  CH30 
+Cuprum Met  11ch
+Cuprum Met  12ch
+Cuprum Met  5ch
+Cuprum Met  10 M 
+Cuprum Met  9999 FC 
+Cuprum Metallicum 29 CH
+Cuprum Metallicum 29 CH
+Cuprum Metallicum 30 CH
+Cuprum Metallicum 5 CH
+Cuprum Metallicum 5 CH
+Cuprum Metallicum 6 CH
+Cuprum Metallicum 6 CH
+Cuprum Metallicum 7 CH
+Cuprum Metallicum 8 CH
+Cuprum Metallicum 9 CH
+Cuprum Metallicum Anacardium
+Cuprum Metallicum 1M 
+Cuprum Metallicum 4999 FC 
+Cuprum Metallicum 5M 
+Cuprum OXYD Nigrum  5 CH
+Cuprum OXYD Nigrum  6 CH
+Cuprum Sulphuricum  DH11
+Cuprum Sulphuricum  DH12
+Cuprum Sulphuricum  DH7
+Cuprum Sulphuricum  DH8
+Cyclamen  29 CH
+Cyclamen  60ch
+Cyclamen Eur  300fc
+Cyclamen Eur  
+Cyclamen Europaea 10 DH
+Cyclamen Europaea 8 DH
+Cyclamen Europaea 9 DH
+Cynara Scolymus CH1
+Cyprideium Pubesvsers 4dh
+Daichos Pru 29ch
+Damiana 4d
+Damiana   4 DH
+Damiana   5 DH
+Damiana   6 DH
+Denanthe Crocata  5ch
+Dengue Febre  29ch
+Dengue Febre  
+DHEA  1M
+DHEA  10 M
+DHEA  CH 200
+DHEA  CH 30
+Digitalis 
+Digitalis Purpurea  2ch
+Dioscorea 5 CH
+Dioscorea 5 CH
+Dioscorea 6 CH
+Dioscorea Villosa CH1
+Dioscorea Villosa CH11
+Dioscorea Villosa CH12
+Dioscorea Villosa CH29
+Dioscorea Villosa CH30
+Dioscorea Villosa DH1
+Dioscoreia  CH2 
+Dioscoreia  CH3 
+Dioscoreia  CH4 
+Disco Cervical  25ch
+Disco Cervical  29ch
+Disco Interv  25ch
+Dolichos  DH5 
+Dolichos Pruriens 3ch
+Dopamina  1 M
+Dopamina  10 CH
+Dopamina  10 M
+Dopamina  11 CH
+Dopamina  11ch
+Dopamina  12 CH
+Dopamina  200 CH
+Dopamina  30 CH
+Dopamina  30 CH
+Dopamina  5 CH
+Dopamina  6 CH
+Dopamina  7 CH
+Dopamina  8 CH
+Dopamina  9 CH
+Dopaminum 29ch
+Drosera 1 SD
+Drosera 1ch
+Drosera 2 SD
+Drosera 3 SD
+Drosera 4 CH
+Drosera 4 SD
+Drosera 4ch
+Drosera 5 SD
+Drosera 5ch
+Drosera 6 Ch
+Drosera 7 CH
+Drosera Rotundifolia  SD1
+Drosera Rotundifolia  SD2
+Drosera Rotundifolia  SD3
+Drosera Rotundifolia  SD4
+Drosera Rotundifolia  SD5
+Drymis Wint 19ch
+Dulcamara 1 CH
+Dulcamara 1 DH
+Dulcamara 1 SD
+Dulcamara 1d
+Dulcamara 2 CH
+Dulcamara 2 DH
+Dulcamara 2 SD
+Dulcamara 3 CH
+Dulcamara 3 DH
+Dulcamara 3 SD
+Dulcamara 4 CH
+Dulcamara 4 DH
+Dulcamara 4 SD
+Dulcamara 5 CH
+Dulcamara 5 DH
+Dulcamara 5 SD
+Dulcamara 6 CH
+Dulcamara 6 DH
+Dulcamara 6ch
+Dulcamara 199FC
+Dulcamara CH11
+Dulcamara CH12
+Dulcamara CH20
+Dulcamara CH200
+Dulcamara CH29
+Echinacea 11 CH
+Echinacea 2 CH
+Echinacea 3 CH
+Echinacea 5 CH
+Echinacea 6 CH
+Echinacea ang 12ch
+Echinacea ang 1d
+Echinacea Purpurea  18 DH
+Echinacea purpurea  1d
+Echinacea purpurea  2dh
+Echinacea purpurea  
+Enterecocus Focc  14ch
+Enterecocus Focc  5ch
+Equinacea Augustiofolia 20ch
+Equinacea Augustiofolia 21ch
+Equinacea Augustiofolia 23ch
+Equinacea Augustiofolia 3d
+Eryngium Aquaticum  4ch
+Escherichia Coli  199 CH
+Escherichia Coli  29 CH
+Escherichia Coli  999 FC
+Escherichia Coli  9999 FC
+Escherichia Coli  CH200
+Espinheira Santa  
+Estomago  9ch
+Estradiol 1 M
+Estradiol 10 M
+Estradiol 200 CH
+Estradiol 30 CH
+Estradiol 999 FC
+Estradiol 9999 FC
+Estrogeno 5 CH
+Eucaliptus  25ch
+Eucaliptus  29ch
+Eucalyptus Globulus CH1
+Eupat 
+Eupatorium Perfoliatum  11 CH
+Eupatorium Perfoliatum  29 CH
+Eupatorium Perfoliatum  2d
+Eupatorium Perfoliatum  30 CH
+Eupatorium Perfoliatum  4 DH
+Eupatorium Perfoliatum  5 CH
+Eupatorium Perfoliatum  5ch
+Eupatorium Perfoliatum  5ch
+Eupatorium Perfoliatum  6 CH
+Eupatorium Perfoliatum  
+Euphorbium off  
+Euphrasia 15ch
+Euphrasia 5d
+Euphrasia 
+Euphrasia CH1
+Euphrasia officinalis 1ch
+Euphrasia officinalis 5ch
+Euphrasia Officinalis CH16
+Euphrasia Officinalis CH29
+Euphrasia Officinalis CH30
+Faciola Hepatica  1 M
+Faciola Hepatica  11 CH
+Faciola Hepatica  12 CH
+Faciola Hepatica  199 CH
+Faciola Hepatica  200 CH
+Faciola Hepatica  29 CH
+Faciola Hepatica  30 CH
+Faciola Hepatica  999 FC
+Fel Tauri 4ch
+Ferrum Iodatum  6ch
+Ferrum Met  14ch
+Ferrum Metalicum  1 SD
+Ferrum Metalicum  11ch
+Ferrum Metalicum  2 SD
+Ferrum Metalicum  29ch
+Ferrum Metalicum  3 SD
+Ferrum Metalicum  4 SD
+Ferrum Metalicum  5 SD
+Ferrum Metalicum  6ch
+Ferrum Metallicum 11 CH
+Ferrum Metallicum 12 CH
+Ferrum Metallicum 199 CH
+Ferrum Metallicum 200 CH
+Ferrum Metallicum 29 CH
+Ferrum Metallicum 30 CH
+Ferrum Metallicum 5 CH
+Ferrum Metallicum 6 CH
+Ferrum Metallicum 9 CH
+Ferrum Metallicum SD1
+Ferrum Metallicum SD2
+Ferrum Metallicum SD3
+Ferrum Metallicum SD4
+Ferrum Metallicum SD5
+Ferrum Muriaticum 5ch
+Ferrum Phophoricum  10 DH
+Ferrum Phophoricum  11 DH
+Ferrum Phophoricum  11 DH
+Ferrum Phophoricum  12 DH
+Ferrum Phophoricum  12 DH
+Ferrum Phosphoricum 10 CH
+Ferrum Phosphoricum 11d
+Ferrum Phosphoricum 16ch
+Ferrum Phosphoricum 199 CH
+Ferrum Phosphoricum 200 CH
+Ferrum Phosphoricum 29 CH
+Ferrum Phosphoricum 30 CH
+Ferrum Phosphoricum 5 CH
+Ferrum Phosphoricum 5ch
+Ferrum Phosphoricum 5ch
+Ferrum Phosphoricum 6 CH
+Ferrum Phosphoricum 6ch
+Ferrum Phosphoricum CH11
+Ferrum Phosphoricum CH12
+Ferrum Phosphoricum SD1
+Ferrum Phosphoricum SD10
+Ferrum Phosphoricum SD2
+Ferrum Phosphoricum SD3
+Ferrum Phosphoricum SD4
+Ferrum Phosphoricum SD5
+Ferrum Phosphoricum SD6
+Ferrum Phosphoricum SD7
+Ferrum Phosphoricum SD8
+Ferrum Phosphoricum SD9
+Ferrum Siderum  8ch
+Ferrum Sulphuratum  5ch
+Ferrum Sulphuratum  5ch
+Ferrum Sulphuricum  10ch
+Ferrum Sulphuricum  11ch
+Ferrum Sulphuricum  11ch
+Ferrum Sulphuricum  14ch
+figado  199 CH
+figado  199 CH
+figado  200 CH
+figado  29 CH
+figado  3 CH
+Figado  30 CH
+Fígado Total  9ch
+Filix Mas CH6
+Filix Masch 2ch
+Filix Masch 3ch
+Filix Masch 6ch
+Flor de Piedra  8ch
+Fluoxetina ( Isot)  199 FC
+Foeniculum Vulg 1ch
+Foeniculum Vulg 3ch
+Foeniculum Vulg 5ch
+Foeniculum Vulgaris 3 DH
+Folliculinum  199 CH
+Folliculinum  29 CH
+Folliculinum  30 CH
+Folliculinum  7ch
+Folliculinum  30CH
+Folliculinum  CH7
+Folliculinum  CH9
+Formica Rufa  6CH
+Fraxinus Americana  4ch
+Fungos  1 M
+Fungos  10 M
+Fungos  200 CH
+Fungos  30 CH
+Fungos  9ch
+Gaba  1 M
+Gaba  10 M
+Gaba  10 M
+Gaba  11 CH
+Gaba  12 CH
+Gaba  199 FC
+Gaba  200 CH
+Gaba  29 CH
+Gaba  30 CH
+Gaba  5ch
+Gaba  999 FC
+Gaba  9999 FC
+Gaba  9999 FC
+Galphimia Glauca  5ch
+Gayacum 29ch
+GCMAF CH12
+GCMAF CH29
+GCMAF CH30
+Gelsemim Sempervirens 18 DH
+Gelsemim Sempervirens 4 DH
+Gelsemium 204
+Gelsemium 1 CH
+Gelsemium 1002ch
+Gelsemium 10ch
+Gelsemium 199 CH
+Gelsemium 199ch
+Gelsemium 19ch
+Gelsemium 19ch
+Gelsemium 200 CH
+Gelsemium 29 CH
+Gelsemium 2d
+Gelsemium 30 CH
+Gelsemium 3d
+Gelsemium 4 CH
+Gelsemium 4ch
+Gelsemium 5 CH
+Gelsemium 5ch
+Gelsemium 6 CH
+Gelsemium 60ch
+Gelsemium 6ch
+Gelsemium 7 CH
+Gelsemium 8 CH
+Gelsemium 9 CH
+Gelsemium 999 FC
+Gelsemium 1M 
+Gengibre  1ch
+Gengibre  3ch
+Gengibre  5ch
+Ginkgo Biloba 2ch
+Ginkgo Biloba 5ch
+Ginkgo Biloba 6ch
+Glandula Suprarenal 30CH
+Glândula Suprarrenal  10 M
+Glândula Suprarrenal  199 FC
+Glândula Suprarrenal  1M
+Glândula Suprarrenal  200 CH
+Glândula Suprarrenal  29 CH
+Glândula Suprarrenal  29 CH
+Glândula Suprarrenal  30 CH
+Glândula Suprarrenal  999 FC
+Glândula Suprarrenal  9999 FC
+Glândulas Amigdalas 1 M
+Glândulas Amigdalas 10 M
+Glândulas Amigdalas 11 CH
+Glândulas Amigdalas 12 CH
+Glândulas Amigdalas 199 CH
+Glândulas Amigdalas 200 CH
+Glândulas Amigdalas 29 CH
+Glândulas Amigdalas 30 CH
+Glândulas Amigdalas 999 FC
+Glândulas Amigdalas 9999 FC
+Glifosato ( Isto) 1 M
+Glifosato ( Isto) 10 M
+Glifosato ( Isto) 12 CH
+Glifosato ( Isto) 199 FC
+Glifosato ( Isto) 200 CH
+Glifosato ( Isto) 29 CH
+Glifosato ( Isto) 30 CH
+Glifosato ( Isto) 999 FC
+Glifosato ( Isto) 9999 FC
+Glifosato (Isto)  11 CH
+Glonoinum 11ch
+Glonoinum 12ch
+Glonoinum CH12
+Glutamato Monossódico 1 M
+Glutamato Monossódico 10 M
+Glutamato Monossódico 11 CH
+Glutamato Monossódico 12 CH
+Glutamato Monossódico 12 CH
+Glutamato Monossódico 199 FC
+Glutamato Monossódico 200 CH
+Glutamato Monossódico 29 CH
+Glutamato Monossódico 30 CH
+Glutamato Monossódico 30 CH
+Glutamato Monossódico 999 FC
+Glutamato Monossódico 9999 FC
+Glutamato Monossódico 9999 FC
+Gluten  1 M
+Gluten  10 M
+Gluten  11 CH
+Gluten  11ch
+Gluten  12 CH
+Gluten  199 CH
+Gluten  200 CH
+Gluten  29 CH
+Gluten  30 CH
+Gluten  6ch
+Gluten  999 FC
+Gluten  9999 FC
+GMAF  10M
+GMAF  199FC
+GMAF  1M
+GMAF  4.999FC
+GMAF  9.999FC
+GMAF  999FC
+GMAF  CH200
+Gnaphalium  3 CH
+Gnaphalium  5 CH
+Gnaphalium  6 CH
+Gnaphalium  CH3
+Gnaphalium Arenarium  4ch
+Gnaphalium Polycephalum 2ch
+Gnaphalium Polycephalum CH5
+Gnaphalium Polycephalum CH6
+Grafeno  (Isto) 11 CH
+Grafeno  (Isto) 12 CH
+Grafeno  (Isto) 29 CH
+Grafeno  (Isto) 30 CH
+Grafeno (Isot)  1 M
+Grafeno (Isot)  10 M
+Grafeno (Isot)  10 M
+Grafeno (Isot)  199 FC
+Grafeno (Isot)  1M
+Grafeno (Isot)  200 CH
+Grafeno (Isot)  30 CH
+Grafeno (Isot)  999 FC
+Grafeno (Isot)  9999 FC
+Grafeno (Isot)  Solidago
+Graphites 1 SD
+Graphites 100ch
+Graphites 199 CH
+Graphites 1m
+Graphites 2 SD
+Graphites 200 CH
+Graphites 2999fc
+Graphites 3 SD
+Graphites 3m
+Graphites 4 SD
+Graphites 4ch
+Graphites 5 CH
+Graphites 5 CH
+Graphites 5 SD
+Graphites 501ch
+Graphites 5ch
+Graphites 6 CH
+Graphites 6ch
+Graphites 8ch
+Graphites 99ch
+Graphites SD1
+Graphites SD2
+Graphites SD3
+Graphites SD4
+Graphites SD5
+Gridelia  6 CH
+Grindelia 12ch
+Guaiacum  CH4 
+Guayacum  1d
+Guayacum  2d
+Guayacum  d3
+H1N1 2023 29ch
+H1N1 2023 30ch
+Hamamelis 1 CH
+Hamamelis 1 DH
+Hamamelis 11 CH
+Hamamelis 12 CH
+Hamamelis 12ch
+Hamamelis 1ch
+Hamamelis 1d
+Hamamelis 2 CH
+Hamamelis 2 DH
+Hamamelis 29 CH
+Hamamelis 2d
+Hamamelis 3 CH
+Hamamelis 3 DH
+Hamamelis 4d
+Hamamelis 5 CH
+Hamamelis 5ch
+Hamamelis 6 CH
+Hamamelis 6 CH
+Hamamelis 9 CH
+Hamamelis CH30
+Haronja 4ch
+HCG Hormônio  5ch
+Hedeoma Pulegioides 3ch
+Hedera Helix  2dh
+Hekla Lava  11d
+Hekla Lava  29ch
+Hekla Lava  6ch
+Helium  29 CH
+Helium  30 CH
+Hellborus N 29ch
+Helleborus  199FC
+Helleborus  CH200
+Helleborus Niger  4 CH
+Helleborus Niger  6CH
+Helleborus Niger  CH11
+Helleborus Niger  CH12
+Helleborus Niger  CH18
+Helleborus Niger  CH29
+Helleborus Niger  CH30
+Hellium 199FC
+Hellium 200CH
+Helonias Dioica 3ch
+Henna Minor 9ch
+Hepar sufuris 11 CH
+Hepar sufuris 12 CH
+Hepar sufuris 198 CH
+Hepar sufuris 198 CH
+Hepar sufuris 199 CH
+Hepar sufuris 199 CH
+Hepar sufuris 200 CH
+Hepar sufuris 200 CH
+Hepar sufuris 29 CH
+Hepar sufuris 6 CH
+Hepar sufuris 9 CH
+Hepar Sulfuris  7 DH
+Hepar Sulphur 1 SD
+Hepar Sulphur 11ch
+Hepar Sulphur 12ch
+Hepar Sulphur 1m/2
+Hepar Sulphur 2 SD
+Hepar Sulphur 29ch
+Hepar Sulphur 3 SD
+Hepar Sulphur 4 SD
+Hepar Sulphur 49ch
+Hepar Sulphur 5 SD
+Hepar Sulphur 5ch
+Hepar Sulphur 5ch
+Hepar Sulphur CH30
+Hepar Sulphuris 8d
+Hepatite B  999 FC
+Hepatite B  CH11
+Hepatite B  CH12
+Hepatite B  CH200
+Hepatite B  CH21
+Hepatite B  CH29
+Hepatite B  CH30
+Hepatite B  1 M
+Herpes Simples  1 M
+Herpes Simples  10 M
+Herpes Simples  11 CH
+Herpes Simples  12 CH
+Herpes Simples  199 CH
+Herpes Simples  200 CH
+Herpes Simples  29 CH
+Herpes Simples  30 CH
+Herpes Simples  33d
+Herpes Simples  999 FC
+Herpes Simples  9999 FC
+Herpes Simples  9dh
+Herpes Simples tipo 2 1 M
+Herpes Simples tipo 2 10 M
+Herpes Simples tipo 2 199 FC
+Herpes Simples tipo 2 33 CH
+Herpes Simples tipo 2 999 FC
+Herpes Simples tipo 2 9999 FC
+Herpes zoster 1 M
+Herpes zoster 10 M
+Herpes zoster 199 CH
+Herpes zoster 200 CH
+Herpes zoster 29 CH
+Herpes zoster 30 CH
+Herpes zoster 999 FC
+Herpes zoster 9999 FC
+Hidrastis canadensis  11 CH
+Hidrastis canadensis  12 CH
+Hidrastis canadensis  28 CH
+Hidrastis canadensis  29 CH
+Hidrastis canadensis  30 CH
+Hidrastis canadensis  30 CH
+Hidrastis canadensis  4 CH
+Hidrastis canadensis  5 CH
+Hidrastis canadensis  5 CH
+Hidrastis canadensis  9 CH
+Hidrocotyle 5ch
+Hidrogenio  29 Ch
+Hidrogenio  30 CH
+Hidroxido Aluminium 11 CH
+Hidroxido Aluminium 12 CH
+Hidroxido Aluminium 199 CH
+Hidroxido Aluminium 199 FC
+Hidroxido Aluminium 199 FC
+Hidroxido Aluminium 29 CH
+Hidroxido Aluminium 30 CH
+Hidroxido Aluminium 9999 FC
+Hipófise  9ch
+Histaminum  1 M
+Histaminum  10 CH
+Histaminum  10 M
+Histaminum  11 CH
+Histaminum  12 CH
+Histaminum  12 CH
+Histaminum  199 CH
+Histaminum  200 CH
+Histaminum  200ch
+Histaminum  29 CH
+Histaminum  29ch
+Histaminum  30 CH
+Histaminum  6ch
+Histaminum  999 FC
+Histaminum  9999 FC
+Histaminum  9ch
+Holmium Metallicum  15CH
+Holmium Metallicum  15CH
+HPV 1 M
+HPV 10 M
+HPV 200 CH
+HPV 30 CH
+Hydrastis 2ch
+Hydrastis 2dh
+Hydrastis 30 ch
+Hydrastis 4ch
+Hydrastis 4ch
+Hydrastis CH1
+Hydrastis Canadensis  1 DH
+Hydrastis TM  tm
+Hyosciamus  1d
+Hyoscyamus Niger  1 DH
+Hyoscyamus Niger  1 SD
+Hyoscyamus Niger  11 CH
+Hyoscyamus Niger  12 CH
+Hyoscyamus Niger  198 CH
+Hyoscyamus Niger  199 CH
+Hyoscyamus Niger  2 CH
+Hyoscyamus Niger  2 SD
+Hyoscyamus Niger  200 CH
+Hyoscyamus Niger  28 CH
+Hyoscyamus Niger  29 CH
+Hyoscyamus Niger  29 CH
+Hyoscyamus Niger  3 CH
+Hyoscyamus Niger  3 SD
+Hyoscyamus Niger  30 CH
+Hyoscyamus Niger  30 CH
+Hyoscyamus Niger  4 CH
+Hyoscyamus Niger  4 SD
+Hyoscyamus Niger  5 SD
+Hyoscyamus Niger  6 CH
+Hyoscyamus Niger  9 CH
+Hyoscyamus Niger  SD2
+Hyoscyamus Niger  SD3
+Hyoscyamus Niger  SD4
+Hyoscyamus Niger  SD5
+Hypericum 1M 
+Hypericum 998 FC 
+Hypericum DH5 
+Hypericum Perf  1ch
+Hypericum Perf  200ch
+Hypericum Perf  21ch
+Hypericum Perf  2ch
+Hypericum Perf  3ch
+Hypericum Perf  7ch
+Hypericum Perf  sd
+Hypericum Perforatum  10 CH
+Hypericum Perforatum  198 CH
+Hypericum Perforatum  2 DH
+Hypericum Perforatum  29 CH
+Hypericum Perforatum  3 DH
+Hypericum Perforatum  4 DH
+Hypericum Perforatum  5 CH
+Hypericum Perforatum  5 DH
+Hypericum Perforatum  6 CH
+Hypericum Perforatum  6 DH
+Hypericum Perforatum  7 CH
+Hypericum Perforatum  8 CH
+Hypericum Perforatum  9 CH
+Hypericum Perforatum  199FC
+Hypericum Perforatum  CH1
+Hypericum Perforatum  CH200
+Hypericum Perforatum  CH4
+Hypophise Lob. Ant. 199 CH
+Hypophise Total 199 CH
+Ichtlyolum  12 CH
+Ichtlyolum  29 CH
+IGF (Somatomedina)  1 M
+IGF (Somatomedina)  11 CH
+IGF (Somatomedina)  12 CH
+IGF (Somatomedina)  199 FC
+IGF (Somatomedina)  200 CH
+IGF (Somatomedina)  29 CH
+IGF (Somatomedina)  30 CH
+IGF (Somatomedina)  999 FC
+Ignatia 10 DH
+Ignatia 28 DH
+Ignatia 8 DH
+Ignatia 9 DH
+Ignatia SD6 
+Ignatia SD7 
+Ignatia SD8 
+Ignátia 1 SD
+Ignátia 2 SD
+Ignátia 3 SD
+Ignátia 4 SD
+Ignátia 5 SD
+Ignatia Amara 1000ch
+Ignatia Amara 100ch
+Ignatia Amara 105ch
+Ignatia Amara 110ch
+Ignatia Amara 120000fc
+Ignatia Amara 120ch
+Ignatia Amara 12ch
+Ignatia Amara 139ch
+Ignatia Amara 149ch
+Ignatia Amara 198 CH
+Ignatia Amara 199 CH
+Ignatia Amara 199ch
+Ignatia Amara 1lm
+Ignatia Amara 1m/50
+Ignatia Amara 1m13
+Ignatia Amara 2 CH
+Ignatia Amara 200 CH
+Ignatia Amara 200ch
+Ignatia Amara 204ch
+Ignatia Amara 28 CH
+Ignatia Amara 29 CH
+Ignatia Amara 29ch
+Ignatia Amara 3 CH
+Ignatia Amara 30 CH
+Ignatia Amara 30ch
+Ignatia Amara 4 CH
+Ignatia Amara 4 CH
+Ignatia Amara 4ch
+Ignatia Amara 5 CH
+Ignatia Amara 50ch
+Ignatia Amara 6 CH
+Ignatia Amara 7 CH
+Ignatia Amara 70ch
+Ignatia Amara 9 CH
+Ignatia Amara 
+Ignatia Amara 
+Ignatia Amara SD1
+Ignatia Amara SD2
+Ignatia Amara SD3
+Ignatia Amara SD4
+Ignatia Amara SD5
+Indigo  12ch
+Influenza 2021  30ch
+Influenza H1N1 2021 
+Influenza Tetra CH11 
+Influenza Tetra CH19 
+Influenza Tetra CH199 
+Influenza Tetra CH200 
+Influenza Tetra CH21 
+Influenza Tetra CH29 
+Influenza Tetra CH30 
+Influenza Tetra CH7 
+Influenzinum  10 CH
+Influenzinum  12ch
+Influenzinum  1ch
+Influenzinum  29ch
+Influenzinum  8 CH
+Influenzinum  1 M
+Influenzinum  1999FC
+Influenzinum  10 M
+Influenzinum  199 FC
+Influenzinum  2999FC
+Influenzinum  200FC
+Influenzinum  3999FC
+Influenzinum  4.999 FC
+Influenzinum  5.999 FC
+Influenzinum  6.999 FC
+Influenzinum  7.999 FC
+Influenzinum  8.999 FC
+Influenzinum  9.999 FC
+Influenzinum  999 FC
+Influenzinum  CH30
+Influenzinum 2022 11ch
+Insulina ( Isto)  1 M
+Insulina ( Isto)  10 M
+Insulina ( Isto)  11 CH
+Insulina ( Isto)  12 CH
+Insulina ( Isto)  199 CH
+Insulina ( Isto)  199 CH
+Insulina ( Isto)  200 CH
+Insulina ( Isto)  29 CH
+Insulina ( Isto)  29 CH
+Insulina ( Isto)  30 CH
+Insulina ( Isto)  999 FC
+Insulina ( Isto)  9999 FC
+Intestino Grosso  199 CH
+Iodium  CH11
+Iodium  CH12
+Iodium  CH20
+Iodium  CH29
+Iodum 5ch
+Iodum 6ch
+Iodum Mettalicum  11d
+Iodum Purum 15ch
+Iodum Purum 198 CH
+Iodum Purum 2 CH
+Iodum Purum 21c
+Iodum Purum 3 CH
+Iodum Purum 4 CH
+Iodum Purum 5 CH
+Iodum Purum 6 CH
+Iombina 10ch
+Iombina 15ch
+Iombina 1ch
+Iombina 29ch
+Iombina 5ch
+Ipeca 1 CH
+Ipeca 1 SD
+Ipeca 10 DH
+Ipeca 11 DH
+Ipeca 19ch
+Ipeca 1ch
+Ipeca 2 CH
+Ipeca 2 SD
+Ipeca 29 Ch
+Ipeca 29ch
+Ipeca 3 CH
+Ipeca 3 SD
+Ipeca 4 SD
+Ipeca 4ch
+Ipeca 5 CH
+Ipeca 5 CH
+Ipeca 5 SD
+Ipeca 6 CH
+Ipeca 7 CH
+Ipeca CH11
+Ipeca CH12
+Ipeca CH17
+Ipeca CH18
+Ipeca DH1
+Ipeca DH11
+Ipeca DH11
+Ipeca DH12
+Ipeca DH2
+Ipeca SD2
+Ipeca SD3
+Ipeca SD4
+Ipeca SD5
+Iris Versicolor 25ch
+Iris Versicolor 2DH
+Iris Versicolor 4 CH
+Iris Versicolor 4ch
+Iris Versicolor 7ch
+Iris Versicolor 8ch
+Isis Versicolor 10 DH
+Isopatia Levodopa e Benzeraz  10ch
+Isoterapico 5ch
+Jaborandi 6ch
+Jalapa  CH7
+Juglans Regia CH11 
+Juglans Regia CH12 
+Juglans Regia CH2 
+Juglans Regia CH20 
+Juglans Regia CH29 
+Juglans Regia CH30 
+Juglans Regia CH6 
+Juicium Verum 4ch
+Justicia  5ch
+Justicia  6ch
+Kali Bich 7ch
+Kali Bichromicum  CH11
+Kali Bichromicum  CH12
+Kali Bichromicum  CH17
+Kali Bichromicum  CH18
+Kali Bromatum 19ch
+Kali Bromatum 7ch
+Kali Bromatum c129
+Kali Carbonicum 11ch
+Kali Carbonicum 35ch
+Kali Carbonicum 5ch
+Kali Carbonicum 6ch
+Kali Carbonicum 
+Kali Carbonicum 10.999FC
+Kali Carbonicum 14.999FC
+Kali Carbonicum 19.999FC
+Kali Carbonicum 199FC
+Kali Carbonicum 200FC
+Kali Carbonicum 24.999FC
+Kali Carbonicum 29.999FC
+Kali Carbonicum 34.999FC
+Kali Carbonicum 39.999FC
+Kali Carbonicum 44.999FC
+Kali Carbonicum 49.999FC
+Kali Carbonicum 50M
+Kali Carbonicum CH100
+Kali Carbonicum CH11
+Kali Carbonicum CH12
+Kali Carbonicum CH50
+Kali Iodatum  6ch
+Kali Iodatum  9ch
+Kali Iodatum  CH6 
+Kali Phosp  11lm
+Kali Phosp  14ch
+Kali Phosp  29ch
+Kali Phosp  5ch
+Kali Phosp  6ch
+Kali Phosp  
+Kali Phosphoricum CH11 
+Kali Phosphoricum CH12 
+Kalium Bichromicum  10000fc
+Kalium Bichromicum  2ch
+Kalium Bichromicum  4ch
+Kalium Bichromicum  4ch
+Kalium Bichromicum  4dh
+Kalium Bichromicum  5dh
+Kalium Bichromicum  6ch
+Kalium Bichromicum  6ch
+Kalium Bichromicum  
+Kalium Bichronicum  2 CH
+Kalium Bichronicum  28 CH
+Kalium Bichronicum  29 CH
+Kalium Bichronicum  3 CH
+Kalium Bichronicum  30 CH
+Kalium Bichronicum  4 CH
+Kalium Bichronicum  5 CH
+Kalium Bichronicum  6 CH
+Kalium Bromatum 14ch
+Kalium Carbonicum 10 DH
+Kalium Carbonicum 10 DH
+Kalium Carbonicum 11 DH
+Kalium Carbonicum 11 DH
+Kalium Carbonicum 12 DH
+Kalium Carbonicum 2 CH
+Kalium Carbonicum 24lm
+Kalium Carbonicum 3 CH
+Kalium Carbonicum 4 CH
+Kalium Carbonicum 5 CH
+Kalium Carbonicum 6 CH
+Kalium Carbonicum 8 DH
+Kalium Carbonicum 8 DH
+kalium Fluoratum  12 DH
+Kalium iodataum 9ch
+Kalium Iodatum  11 CH
+Kalium Iodatum  12 CH
+Kalium Muriaticum 10 DH
+Kalium Muriaticum 11 DH
+Kalium Muriaticum 12 DH
+Kalium Muriaticum 199 CH
+Kalium Muriaticum 200 CH
+Kalium Muriaticum 28 CH
+Kalium Muriaticum 3ch
+Kalium Muriaticum 5 DH
+Kalium Muriaticum 5ch
+Kalium Muriaticum 5d
+Kalium Muriaticum 6 DH
+Kalium Muriaticum 7 DH
+Kalium Muriaticum 8 DH
+Kalium Muriaticum 9 DH
+Kalium Phosphoricum 10 DH
+Kalium Phosphoricum 10ch
+Kalium Phosphoricum 11 DH
+Kalium Phosphoricum 11ch
+Kalium Phosphoricum 11d
+Kalium Phosphoricum 199 CH
+Kalium Phosphoricum 2 CH
+Kalium Phosphoricum 200 CH
+Kalium Phosphoricum 29 CH
+Kalium Phosphoricum 3 CH
+Kalium Phosphoricum 3 CH
+Kalium Phosphoricum 30 CH
+Kalium Phosphoricum 4 CH
+Kalium Phosphoricum 4ch
+Kalium Phosphoricum 5 CH
+Kalium Phosphoricum 6 CH
+Kalium Phosphoricum 6 DH
+Kalium Phosphoricum 8 DH
+Kalium Phosphoricum 9 DH
+Kalium Phosphoricum DH12
+kalium Sulfuricum 11 CH
+Kalium Sulfuricum 11 DH
+Kalium Sulfuricum 12 DH
+kalium Sulfuricum 29 CH
+Kalium Sulfuricum 5 DH
+Kalium Sulphuricum  4ch
+Kalium Suphuricum 3ch
+Kalmia Latifolia  3ch
+Kalmia Latifolia  4ch
+Kalmia Latifolia  6ch
+Kawa Kawa 5ch
+Kawa Kawa 9ch
+Keflex  CH200
+Kreosotum 259ch
+Kreosotum 280ch
+kreosotum 8 CH
+Kreosotum CH12
+Kreosotum CH19
+Kreosotum CH29
+Kreosotum CH30
+Lac Caninum 11CH
+Lac Caninum 12CH
+Lac Caninum 29CH
+Lac Caninum 30CH
+Lac Defloratum  1 M
+Lac Defloratum  10 M
+Lac Defloratum  199 CH
+Lac Defloratum  200 CH
+Lac Defloratum  29 CH
+Lac Defloratum  29 CH
+Lac Defloratum  30 CH
+Lac Defloratum  30 CH
+Lac Defloratum  999 FC
+Lac Defloratum  9999 FC
+Lac Defloratum  CH2
+Lac Delphinum 10 CH
+Lac Delphinum 199 FC
+Lac Delphinum 29 CH
+Lac Delphinum 30 CH
+Lac Maternum  1 M
+Lac Maternum  10 M
+Lac Maternum  199 CH
+Lac Maternum  200 CH
+Lac Maternum  33 CH
+Lac Maternum  34 CH
+Lac Maternum  36 CH
+Lac Maternum  39 CH
+Lac Maternum  40 CH
+Lac Maternum  999 FC
+Lac Maternum  9999 FC
+Lachesis  1 SD
+Lachesis  11ch
+Lachesis  16d
+Lachesis  1m/09
+Lachesis  2 SD
+Lachesis  200ch
+Lachesis  20ch
+Lachesis  3 SD
+Lachesis  4 SD
+Lachesis  5 SD
+Lachesis  50ch
+Lachesis  5ch
+Lachesis  1M
+Lachesis  CH999 FC
+Lachesis Muta 16 DH
+Lachesis Muta 199 CH
+Lachesis Muta 200 CH
+Lachesis Muta 29 CH
+Lachesis Muta 30 CH
+Lachesis Muta 6 CH
+Lachesis Muta 9 DH
+Lachesis Muta DH17
+Lachesis Muta DH18
+Lachesis Muta SD2
+Lachesis Muta SD3
+Lachesis Muta SD4
+Lachesis Muta SD5
+Lactobacillus Reuteri 11 CH
+Lactobacillus Reuteri 11CH
+Lactobacillus Reuteri CH12
+Lactoferrina ( Isto)  1 M
+Lactoferrina ( Isto)  10 M
+Lactoferrina ( Isto)  12 CH
+Lactoferrina ( Isto)  199 FC
+Lactoferrina ( Isto)  200 CH
+Lactoferrina ( Isto)  29 CH
+Lactoferrina ( Isto)  30 CH
+Lactoferrina ( Isto)  999 FC
+Lactoferrina ( Isto)  9999 FC
+Lactuca Virosa  CH5
+Lapis Albuns  70ch
+Lappa Major CH1
+Laudanum  12ch
+Ledum 1 SD
+Ledum 2 SD
+Ledum 3 SD
+Ledum 4 SD
+Ledum 5 SD
+Ledum Palustre  100ch
+Ledum Palustre  198 CH
+Ledum Palustre  199 CH
+Ledum Palustre  200 CH
+Ledum Palustre  29 CH
+Ledum Palustre  29ch
+Ledum Palustre  3 CH
+Ledum Palustre  4 CH
+Ledum Palustre  4 DH
+Ledum Palustre  49ch
+Ledum Palustre  5 CH
+Ledum Palustre  6 CH
+Ledum Palustre  69ch
+Ledum Palustre  SD1
+Ledum Palustre  SD2
+Ledum Palustre  SD3
+Ledum Palustre  SD4
+Ledum Palustre  SD5
+leishmania  199 FC
+leishmania  29 CH
+leishmania  999 FC
+leishmania  9999 FC
+Leite 59d
+Leite de Vaca CH11
+Leite de Vaca CH12
+Leite de Vaca CH19
+Leite de Vaca CH2
+Leite de Vaca CH29
+Leite de Vaca CH30
+Leite de Vaca CH6
+Leprominum  1 M
+Leprominum  10 M
+Leprominum  199 FC
+Leprominum  200 CH
+Leprominum  32 CH
+Leprominum  33 CH
+Leprominum  999 FC
+Leprominum  9999 FC
+Leptandra Virginica 11CH
+Leptandra Virginica 12CH
+Leptandra Virginica 29CH
+Leptandra Virginica 30CH
+Leptandra Virginica 6CH
+Levisticum Offic  4d
+Levotiroxina  6ch
+Levotiroxina  9ch
+Lilium Tigrinum 49ch
+Lithium Bromatum  29ch
+Lithium Muriaticum  11 DH
+Lithium Muriaticum  12 DH
+Lithium Muriaticum  CH4
+Lithium Muriaticum  DH12
+Lithium Salicilicum 5ch
+Lobelia Erinus  5ch
+Lobelia Inflata 1 CH
+Lobelia Inflata 1 CH
+Lobelia Inflata 11 CH
+Lobelia Inflata 12 CH
+Lobelia Inflata 4 CH
+Lobelia Inflata 6 CH
+Luesinum  17ch
+Luesinum  39ch
+Luesinum  50ch
+Luesinum  60ch
+Luezinum  10 CH
+Luezinum  10 M
+Luezinum  10 M
+Luezinum  9999 FC
+Luezinum  9999 FC
+Lufa Operc  4dh
+Luffa op  8ch
+Luffa Operc 1d
+Luffa Operc 2d
+Luffa Operc 5dh
+Lupulo  1d
+Lupulo  2d
+Lupulo  4d
+Lupulo  4d
+Lutetium Metallicum 15CH
+Lutetium Metallicum 15CH
+Lycopo  12ch
+Lycopodim 5ch
+Lycopodium  1 SD
+Lycopodium  10m/20
+Lycopodium  10m/60
+Lycopodium  10m50
+Lycopodium  11ch
+Lycopodium  11ch
+Lycopodium  1259fc
+Lycopodium  15ch
+Lycopodium  1m
+Lycopodium  1m/200
+Lycopodium  1m/3
+Lycopodium  1m/3
+Lycopodium  1m/389
+Lycopodium  1m/4349
+Lycopodium  1m/499
+Lycopodium  1m/79
+Lycopodium  1m279
+Lycopodium  1m299
+Lycopodium  2 SD
+Lycopodium  200ch
+Lycopodium  283ch
+Lycopodium  29ch
+Lycopodium  3 SD
+Lycopodium  30ch
+Lycopodium  39ch
+Lycopodium  4 SD
+Lycopodium  44ch
+Lycopodium  4h
+Lycopodium  5 SD
+Lycopodium  99ch
+Lycopodium  CH5
+Lycopodium  CH6
+lycopodium  Clavatum  18 DH
+lycopodium  Clavatum  3 DH
+lycopodium  Clavatum  4 DH
+Lycopodium Clavatum DH19
+Lycopodium Clavatum DH20
+Lycopodium Clavatum SD2
+Lycopodium Clavatum SD3
+Lycopodium Clavatum SD4
+Lycopodium Clavatum SD5
+Lycopódium Clavatum 1 M
+Lycopódium Clavatum 11 CH
+Lycopódium Clavatum 12 CH
+Lycopódium Clavatum 199 CH
+Lycopódium Clavatum 199 CH
+Lycopódium Clavatum 200 CH
+Lycopódium Clavatum 28 CH
+Lycopódium Clavatum 29 CH
+Lycopódium Clavatum 3 CH
+Lycopódium Clavatum 30 CH
+Lycopódium Clavatum 4 CH
+Lycopódium Clavatum 9 CH
+Lycopódium Clavatum 999 FC
+Lyme Doença 11 CH
+Lyme Doença 199 FC
+Lyme Doença 29 CH
+Lyme Doença 30 CH
+Lyme Doença 999 FC
+Lyme Doença 9999 FC
+Lyssinum  29ch
+Lyssinum  30ch
+Mag Carbonica 30ch
+Mag Carbonica 
+Magnesia Carbonica  10 DH
+Magnesia Carbonica  10 DH
+Magnesia Carbonica  11 DH
+Magnesia Carbonica  11 DH
+Magnesia Carbonica  12 DH
+Magnesia Carbonica  199 CH
+Magnesia Carbonica  200 CH
+Magnesia Carbonica  29 CH
+Magnesia Carbonica  29ch
+Magnesia Carbonica  5 CH
+Magnesia Carbonica  5 CH
+Magnesia Carbonica  6 CH
+Magnesia Carbonica  9 DH
+Magnesia Carbonica  DH12
+Magnesia Carbonica  DH12
+Magnesia Fluorica 29 CH
+Magnesia Muriatica  10 DH
+Magnesia Muriatica  11 DH
+Magnesia Muriatica  11 DH
+Magnesia Muriatica  199 CH
+Magnesia Muriatica  200 CH
+Magnesia Muriatica  29 CH
+Magnesia Muriatica  999 FC
+Magnesia Phosfhorica  10 DH
+Magnesia Phosfhorica  10 DH
+Magnesia Phosfhorica  11 DH
+Magnesia Phosfhorica  12 DH
+Magnesia Phosfhorica  12 DH
+Magnesia Phosfhorica  9 DH
+Magnésia Phosphorica  10 CH
+Magnésia Phosphorica  11 CH
+Magnésia Phosphorica  12 CH
+Magnésia Phosphorica  16 CH
+Magnésia Phosphorica  199 CH
+Magnésia Phosphorica  20 CH
+Magnésia Phosphorica  200 CH
+Magnésia Phosphorica  26 CH
+Magnésia Phosphorica  29 CH
+Magnésia Phosphorica  30 CH
+Magnésia Phosphorica  5 CH
+Magnésia Phosphorica  5 CH
+Magnésia Phosphorica  6 CH
+Magnesia Sulphurica 7ch
+Magnolia Glauca 5d
+Maladrinum  11 CH
+Maladrinum  11 CH
+Maladrinum  29 CH
+Malária 10 M
+Malária 199 CH
+Malária 200 CH
+Malária 29 CH
+Malária 30 CH
+Malária 999 FC
+Malária 9999 FC
+Mancinella  7CH
+Manganum Aceticum CH7
+Manganum Phosphoricum CH5
+Marapuama CH1
+Medicago Sativa 45ch
+Medorrhinum 1 M
+Medorrhinum 10 M
+Medorrhinum 1000ch
+Medorrhinum 198 CH
+Medorrhinum 199 CH
+Medorrhinum 200 CH
+Medorrhinum 200ch
+Medorrhinum 29 CH
+Medorrhinum 30 CH
+Medorrhinum 49999 FC
+Medorrhinum 50ch
+Medorrhinum 69ch
+Medorrhinum 79ch
+Medorrhinum 7ch
+Medorrhinum 89ch
+Medorrhinum 9 CH
+Medorrhinum 9000 FC
+Medorrhinum 999 FC
+Medorrhinum 99ch
+Medorrhinum 10 M
+Medorrhinum 999 FC
+Medula Ossea  11 CH
+Medula Ossea  199 FC
+Medula Ossea  29 CH
+Medula Ossea  999 FC
+Medula Ossea  9999 FC
+Medula Ossea  CH30
+Medusa  3ch
+Melão de São Caetano  5 CH
+Melão de São Caetano  6 CH
+Melao São Caetano tm
+Melatonina (Isto) 1 M
+Melatonina (Isto) 10 CH
+Melatonina (Isto) 10 M
+Melatonina (Isto) 11 CH
+Melatonina (Isto) 12 CH
+Melatonina (Isto) 199 FC
+Melatonina (Isto) 200 CH
+Melatonina (Isto) 29 CH
+Melatonina (Isto) 30 CH
+Melatonina (Isto) 30 CH
+Melatonina (Isto) 6 CH
+Melatonina (Isto) 7 CH
+Melatonina (Isto) 8 CH
+Melatonina (Isto) 9 CH
+Melatonina (Isto) 999 FC
+Melatonina (Isto) 9999 FC
+Melilotus 19ch
+Melilotus offic 4d
+Melissa 11ch
+Melissa 1d
+Melissa 2ch
+Melissa 3 DH
+Melissa 5ch
+Melissa 7d
+Melissa 9ch
+Melissa 9ch
+Mellilotus Officinalis  3ch
+Mellissa  2d
+Menta Piperita  3 DH
+Mer Solubilis 1m
+Mer Solubilis 31ch
+Mer Solubilis ch30
+Merc Cyanatus 4d
+Merc Solubilis  21lm
+Mercurio Iodato 11ch
+Mercurio Iodato 7ch
+Mercurios Solubilis 10 DH
+Mercurios Solubilis 11 DH
+Mercurios Solubilis 9 DH
+Mercuris Solubilis  1m5
+Mercuris Solubilis  fc999
+Mercuriuns Solubilis  1 M
+Mercuriuns Solubilis  10 CH
+Mercuriuns Solubilis  11 CH
+Mercuriuns Solubilis  12 CH
+Mercuriuns Solubilis  198 CH
+Mercuriuns Solubilis  199 CH
+Mercuriuns Solubilis  200 CH
+Mercuriuns Solubilis  29 CH
+Mercuriuns Solubilis  5 CH
+Mercuriuns Solubilis  6 CH
+Mercuriuns Solubilis  7 CH
+Mercuriuns Solubilis  8 CH
+Mercuriuns Solubilis  9 CH
+Mercuriuns Solubilis  999 FC
+Mercuriuns Solubilis  Ritalina
+Mercurius Corrosivus  12ch
+Mercurius Corrosivus  199ch
+Mercurius Corrosivus  25ch
+Mercurius Corrosivus  29ch
+Mercurius Corrosivus  9ch
+Mercurius Cynatus 5ch
+Mercurius Dulcis  5ch
+Mercurius Iodatum 
+Mercurius Iodatus Ruber 5ch
+Mercurius Iodatus Ruber 5ch
+Mercurius Solubilis 11ch
+Mercurius Solubilis 199ch
+Mercurius Solubilis 202ch
+Mercurius Solubilis 30ch
+Mercurius Solubilis 4ch
+Mercurius Solubilis 5ch
+Mercurius Solubilis 8ch
+Mercurius Solubilis 10M
+Mercurius Solubilis 205FC
+Mercurius Solubilis 209FC
+Mercurius Solubilis 4.999FC
+Mercurius Solubilis 9.999FC
+Mercurius Solubilis CH17
+Mercurius Solubilis CH18
+Mercurius Solubilis CH23
+Mercurius Solubilis CH24
+Mercurius Solubilis CH6
+Mercurius Solubilis SD2
+Mercurius Solubilis SD3
+Mercurius Solubilis SD4
+Mercurius Solubilis SD5
+Mercurius Solubilis CH6
+Mercurius Solubillis  1 SD
+Mercurius Solubillis  2 Sd
+Mercurius Solubillis  3 SD
+Mercurius Solubillis  4 SD
+Mercurius Solubillis  5 SD
+Mezereum  199ch
+Mezereum  29ch
+Mezereum  2ch
+Mezereum  4 CH
+Mezereum  5 CH
+Mezereum  5 CH
+Mezereum  5ch
+Mezereum  6 CH
+Mezereum  6 CH
+Mikania Hirsu d3
+Millefolium 3ch
+Millefolium 4ch
+Millefolium 5ch
+Mobybdenum Sulph  10 M
+Mobybdenum Sulph  9999 FC
+Mofo  29ch
+Mofo  39ch
+Molybdenium metalicum 7ch
+Molybdenum Suephuratum  11 DH
+Mononucleose  1 M
+Mononucleose  10 M
+Mononucleose  199 FC
+Mononucleose  200 CH
+Mononucleose  32 CH
+Mononucleose  33 CH
+Mononucleose  999 FC
+Mononucleose  9999 FC
+Morbillinum 10 M
+Morbillinum 9999 FC
+Morgan Pure DH13 
+Mucosa  29ch
+Mulungu 1d
+Mycoplasma  1 M FC
+Mycoplasma  10 M
+Mycoplasma  199 FC
+Mycoplasma  200 FC
+Mycoplasma  4.999 FC
+Mycoplasma  9.999 FC
+Mycoplasma  999 FC
+Mygale Lasiodora  6 CH
+Myosotis Arvensis CH2
+Myosotis Arvensis CH3
+Myosotis Arvensis CH5
+Myosotis Arvensis CH6
+Myristica Sebifera  4ch
+Naja Tripudiam  29 CH
+Naja Tripudiam  30 CH
+Naproxeno ( Isto) 1 M
+Naproxeno ( Isto) 10 M
+Naproxeno ( Isto) 199 FC
+Naproxeno ( Isto) 200 CH
+Naproxeno ( Isto) 29 CH
+Naproxeno ( Isto) 30 CH
+Naproxeno ( Isto) 999 FC
+Naproxeno ( Isto) 9999 FC
+Natrum  Sulfuricum  5 DH
+Natrum Arsenicosum  12ch
+Natrum Arsenicosum  7ch
+Natrum Carbonicum 1 SD
+Natrum Carbonicum 12ch
+Natrum Carbonicum 12ch
+Natrum Carbonicum 2 SD
+Natrum Carbonicum 29 CH
+Natrum Carbonicum 3 SD
+Natrum Carbonicum 4 CH
+Natrum Carbonicum 4 SD
+Natrum Carbonicum 5 CH
+Natrum Carbonicum 5 SD
+Natrum Carbonicum 6 CH
+Natrum Carbonicum SD1
+Natrum Carbonicum SD2
+Natrum Carbonicum SD3
+Natrum Carbonicum SD4
+Natrum Carbonicum SD5
+Natrum Muriaticum 1 SD
+Natrum Muriaticum 10 DH
+Natrum Muriaticum 1000ch
+Natrum Muriaticum 100ch
+Natrum Muriaticum 11 DH
+Natrum Muriaticum 11ch
+Natrum Muriaticum 12 CH
+Natrum Muriaticum 12 DH
+Natrum Muriaticum 12ch
+Natrum Muriaticum 198 CH
+Natrum Muriaticum 199 CH
+Natrum Muriaticum 199ch
+Natrum Muriaticum 1m/20ch
+Natrum Muriaticum 1m1
+Natrum Muriaticum 2 SD
+Natrum Muriaticum 200 CH
+Natrum Muriaticum 200ch
+Natrum Muriaticum 28 CH
+Natrum Muriaticum 29 CH
+Natrum Muriaticum 29ch
+Natrum Muriaticum 29ch
+Natrum Muriaticum 3 CH
+Natrum Muriaticum 3 SD
+Natrum Muriaticum 30 CH
+Natrum Muriaticum 30 CH
+Natrum Muriaticum 30ch
+Natrum Muriaticum 4 SD
+Natrum Muriaticum 49ch
+Natrum Muriaticum 5 CH
+Natrum Muriaticum 5 DH
+Natrum Muriaticum 5 DH
+Natrum Muriaticum 5 SD
+Natrum Muriaticum 6 CH
+Natrum Muriaticum 6 DH
+Natrum Muriaticum 7 CH
+Natrum Muriaticum 8 CH
+Natrum Muriaticum 8 DH
+Natrum Muriaticum 8ch
+Natrum Muriaticum 9 Ch
+Natrum Muriaticum 9 DH
+Natrum Muriaticum 9 DH
+Natrum Muriaticum 999 FC
+Natrum Muriaticum 999fc
+Natrum Muriaticum 
+Natrum Muriaticum 
+Natrum Muriaticum 10M
+Natrum Muriaticum 9.999FC
+Natrum Muriaticum CH200 
+Natrum Muriaticum LM2
+Natrum Muriaticum LM3
+Natrum Muriaticum LM4
+Natrum Muriaticum LM5
+Natrum Muriaticum LM6
+Natrum Muriaticum SD1
+Natrum Muriaticum SD2
+Natrum Muriaticum SD3
+Natrum Muriaticum SD4
+Natrum Muriaticum SD5
+Natrum Phosphoricum 10 DH
+Natrum Phosphoricum 11 DH
+Natrum Phosphoricum 11d
+Natrum Phosphoricum 12 DH
+Natrum Phosphoricum 12dh
+Natrum Phosphoricum 4ch
+Natrum Phosphoricum 5 DH
+Natrum Phosphoricum 6 DH
+Natrum Phosphoricum 6 DH
+Natrum Phosphoricum 7 DH
+Natrum Phosphoricum 7 DH
+Natrum Phosphoricum 8 DH
+Natrum Phosphoricum 9 DH
+Natrum Salicilicum  11ch
+Natrum Salicilicum  14ch
+Natrum Salicilicum  19ch
+Natrum Salicilicum  8ch
+Natrum Sulfuricum 10 DH
+Natrum Sulfuricum 11 DH
+Natrum Sulfuricum 12 DH
+Natrum Sulfuricum 3 CH
+Natrum Sulfuricum 6 DH
+Natrum Sulfuricum 6 DH
+Natrum Sulfuricum 7 DH
+Natrum Sulfuricum 8 DH
+Natrum Sulphur  230ch
+Natrum Sulphur  4ch
+Natrum Sulphur  5ch
+Natrum Sulphur  6ch
+Natrum Sulphuricum  CH11
+Natrum Sulphuricum  CH12
+Natrum Sulphuricum  CH6
+Niccolum Metallicum 29 CH
+Niccolum Metallicum 30 CH
+Nigelia Sativa  5 CH
+Nigelia Sativa  6 CH
+Nigella Sativa  11 DH
+Niquel Metallicum 29ch
+Nistatina 1 M
+Nistatina 11 CH
+Nistatina 12 CH
+Nistatina 199 Fc
+Nistatina 200 CH
+Nistatina 29 CH
+Nistatina 30 CH
+Nistatina 999 FC
+Nistatina 9999 FC
+Nuphar Luteum 2 CH
+Nuphar Luteum 3 CH
+Nuphar Luteum 4 CH
+Nuphar Luteum 5 CH
+Nuphar Luteum   4 DH
+Nux Moschata  30ch
+Nux Moschata  5 DH
+Nux Moschata  5ch
+Nux Moschata  6 DH
+Nux Vomica  10 DH
+Nux Vomica  10dh
+Nux Vomica  12 DH
+Nux Vomica  120ch
+Nux Vomica  125ch
+Nux Vomica  12ch
+Nux Vomica  199ch
+Nux Vomica  1m
+Nux Vomica  1m/5
+Nux Vomica  2dh
+Nux Vomica  30ch
+Nux Vomica  3d
+Nux Vomica  4d
+Nux Vomica  50m/100
+Nux Vomica  50M/120
+Nux Vomica  8 DH
+Nux Vomica  8ch
+Nux Vomica  9 DH
+Nux Vomica  999fc
+Nux Vomica  99ch
+Nux Vomica  9ch
+Nux Vomica  d4
+Nux Vomica  1 M FC
+Nux Vomica  10M
+Nux Vomica  999 FC
+Nux Vomica  CH6
+Nux Vomica  SD2
+Nux Vomica  SD3
+Nux Vomica  SD4
+Nux Vomica  SD5
+Nux Vomica  9999 FC
+Nux Vomica  10M
+Nux Vômica  1 CH
+Nux Vômica  1 SD
+Nux Vômica  10 CH
+Nux Vômica  11 CH
+Nux Vômica  12 CH
+Nux Vômica  199 Ch
+Nux Vômica  2 CH
+Nux Vômica  2 CH
+Nux Vômica  2 SD
+Nux Vômica  200 CH
+Nux Vômica  29 CH
+Nux Vômica  3 CH
+Nux Vômica  3 CH
+Nux Vômica  3 SD
+Nux Vômica  30 CH
+Nux Vômica  4 CH
+Nux Vômica  4 CH
+Nux Vômica  4 SD
+Nux Vômica  5 CH
+Nux Vômica  5 SD
+Nux Vômica  7 CH
+Nux Vômica  8 CH
+Nux Vômica  9 CH
+Ocillococcinum  198 CH
+Ocillococcinum  199 CH
+Ocillococcinum  200 CH
+Ocillococcinum  29 CH
+Ocillococcinum  30 CH
+Ociticina (Isot)  1 M
+Ociticina (Isot)  10 CH
+Ociticina (Isot)  10 M
+Ociticina (Isot)  11 CH
+Ociticina (Isot)  12 CH
+Ociticina (Isot)  12 CH
+Ociticina (Isot)  199 FC
+Ociticina (Isot)  200 CH
+Ociticina (Isot)  200 CH
+Ociticina (Isot)  29 CH
+Ociticina (Isot)  30 CH
+Ociticina (Isot)  30 CH
+Ociticina (Isot)  4 CH
+Ociticina (Isot)  5 CH
+Ociticina (Isot)  6 CH
+Ociticina (Isot)  7 CH
+Ociticina (Isot)  8 CH
+Ociticina (Isot)  9 CH
+Ociticina (Isot)  999 FC
+Ociticina (Isot)  9999 FC
+Olea Europaea 4 DH
+Olea Europaea 79ch
+Oleum Jecoris ( Isto) 11 CH
+Oleum Jecoris ( Isto) 12 CH
+Oleum Jecoris ( Isto) 7 CH
+Olho Total  199 CH
+Olho Total  199 CH
+Olho Total  9 CH
+Omeprazol (Isto)  1 M
+Omeprazol (Isto)  10 M
+Omeprazol (Isto)  11 CH
+Omeprazol (Isto)  199 FC
+Omeprazol (Isto)  200 CH
+Omeprazol (Isto)  29 CH
+Omeprazol (Isto)  30 CH
+Omeprazol (Isto)  999 FC
+Omeprazol (Isto)  9999 FC
+Omicron (Covid) 1 M
+Omicron (Covid) 1999FC
+Omicron (Covid) 10M
+Omicron (Covid) 199FC
+Omicron (Covid) 2999FC
+Omicron (Covid) 200FC
+Omicron (Covid) 3999FC
+Omicron (Covid) 4999FC
+Omicron (Covid) 5999FC
+Omicron (Covid) 6.999FC
+Omicron (Covid) 7.999FC
+Omicron (Covid) 8.999FC
+Omicron (Covid) 9.999FC
+Omicron (Covid) 999FC
+Omicron (Covid) CH11
+Omicron (Covid) CH12
+Omicron (Covid) CH29
+Omicron (Covid) CH30
+Omicron (Covid) CH5
+Omicron (Covid) CH6
+Onomodium Virginicum  29ch
+Onosmodium  CH5 
+Onosmodium Virginicum 11ch
+Onosmodium virginicum 4 CH
+Onosmodium virginicum 5 CH
+Onosmodium Virginicum 5ch
+Opium 30ch
+Ornithogalum  29ch
+Ornithogalum  29ch
+Oscilococcinum  10ch
+Oscilococcinum  11ch
+Oscilococcinum  12ch
+Oscilococcinum  14ch
+Oscilococcinum  14ch
+Oscilococcinum  200ch
+Oscilococcinum  200ch
+Oscilococcinum  20ch
+Oscilococcinum  20ch
+Oscilococcinum  20ch
+Oscilococcinum  28ch
+Oscilococcinum  28ch
+Oscilococcinum  29ch
+Oscilococcinum  29ch
+Osmium Met  11ch
+Osnosmodium  Virginicum 8 DH
+Osteoartrite Nosodium 30ch
+Ovarinum  199 CH
+Ovarinum  200 CH
+Ovarinum  29 CH
+Ovarinum  50000fc
+Ovarinum  5ch
+Ovarinum  7d
+Ovario Total  50000fc
+Oxigênio  9DH 
+Oxigênio  CH7 
+Oxigenium 29 CH
+P.S.S CH200
+Paeonia 2 CH
+Paeonia 3 CH
+Paeonia 4 Ch
+Paeonia   1 DH
+Paladium  19ch
+Palladium Metallicum  29 CH
+Pancreas  6ch
+Pancreas  6ch
+Pancreas  7ch
+Pancreatinum  8ch
+Paracetamol 1 M
+Paracetamol 10 M
+Paracetamol 11 CH
+Paracetamol 199 FC
+Paracetamol 200 CH
+Paracetamol 29 CH
+Paracetamol 999 FC
+Paracetamol 9999 FC
+Parathyreoide 5ch
+Parreira Brava  1d
+Parreira Brava  2dh
+Parreira Brava  3ch
+Parreira Brava  4ch
+Parreira Brava  5ch
+Parreira Brava  
+Parreira Brava  CH5
+Passiflora  1 CH
+Passiflora  2 CH
+Passiflora  3 CH
+Passiflora  3d
+Passiflora  55ch
+Passiflora  5ch
+Passiflora  CH11
+Passiflora  CH6
+Passiflora Incarnata  1 DH
+Passiflora Incarnata  2 DH
+Passiflora Incarnata  2 DH
+Passiflora Incarnata  2ch
+Passiflora Incarnata  3 DH
+Passiflora Incarnata  5 DH
+Passiflora Incarnata  6 DH
+Passiflora Incarnata  8 DH
+Passiflora Incarnata  9 DH
+Penicillinum  199FC
+Penthorium Sedoides 3ch
+Pepsinum  CH5 
+Pereira Brava CH3 
+Pernilongo Doméstico  7CH
+Pernilongo Doméstico  CH12 
+Pernilongo Doméstico  CH19 
+Pernilongo Doméstico  CH20 
+Pernilongo Doméstico  7CH
+Petroleum 11 CH
+Petroleum 12 CH
+Petroleum 199FC
+Petroleum 29CH
+Petroleum CH200
+Petroselinum Sat  2ch
+Phaseolus nanus 6dh
+Phaseous  10c
+Phaseous  15CH
+Phaseous  20ch
+Phaseous  25ch
+Phaseous  30ch
+Phitolaca Decandra  2ch
+Phloridzinum  CH4
+Phophorus 100m100
+Phophorus 10m30
+Phophorus 1m/10
+Phophorus 1m1
+Phophorus 29ch
+Phophorus 300ch
+Phophorus 30ch
+Phosphorus  1 SD
+Phosphorus  11 CH
+Phosphorus  11ch
+Phosphorus  12 CH
+Phosphorus  17ch
+Phosphorus  199 CH
+Phosphorus  1lm
+Phosphorus  1m
+Phosphorus  1m/20ch
+Phosphorus  1m2
+Phosphorus  1m30
+Phosphorus  2 SD
+Phosphorus  200 CH
+Phosphorus  200ch
+Phosphorus  240ch
+Phosphorus  249ch
+Phosphorus  29 CH
+Phosphorus  29ch
+Phosphorus  29ch
+Phosphorus  3 SD
+Phosphorus  30 CH
+Phosphorus  3lm
+Phosphorus  4 SD
+Phosphorus  45ch
+Phosphorus  4999fc
+Phosphorus  49ch
+Phosphorus  4ch
+Phosphorus  5 CH
+Phosphorus  5 SD
+Phosphorus  5ch
+Phosphorus  6 CH
+Phosphorus  6 CH
+Phosphorus  699fc
+Phosphorus  6ch
+Phosphorus  6d
+Phosphorus  7d
+Phosphorus  85d
+Phosphorus  9 CH
+Phosphorus  9 DH
+Phosphorus  9dh
+Phosphorus  SD2
+Phosphorus  SD3
+Phosphorus  SD4
+Phosphorus  SD5
+Physostigma 10c
+Physostigma 20ch
+Physostigma 7ch
+Phytolaca dec 4ch
+Phytolaca dec 5ch
+Phytolacca  CH10
+Phytolacca  CH11
+Phytolacca  CH3
+Phytolacca decandra 1 DH
+Phytolacca decandra 1 DH
+Phytolacca decandra 3 DH
+Phytolacca decandra 4 DH
+Phytolacca decandra 5 DH
+Phytolacca decandra 6 DH
+Phytolacca Decandra 4D
+Phytollaca Dec  2d
+Piper Niger 5ch
+Piper Nigrum  4 CH
+Piperazinum 3ch
+Placenta  10 M
+Placenta  199 FC
+Placenta  29 CH
+Placenta  30 CH
+Placenta  39 CH
+Placenta  40 CH
+Placenta  999 FC
+Placenta  9999 FC
+Placenta  999fc
+Plantago  11ch
+Plantago  1ch
+Plantago  2ch
+Plantago  8ch
+Plantago  CH1
+Plantago  CH12 
+Platanus  2ch
+Platanus  4d
+Platina Metalica  10ch
+Platina Metalica  20ch
+Platina Metalica  30ch
+Platinum Metallicum SD1
+Platinum Metallicum SD2
+Platinum Metallicum SD3
+Platinum Metallicum SD4
+Platinum Metallicum SD5
+Platinus Methallicum  1 SD
+Platinus Methallicum  2 SD
+Platinus Methallicum  3 SD
+Platinus Methallicum  4 SD
+Platinus Methallicum  5 SD
+Plumbum Metalicum 29ch
+Plumbum Metalicum 5ch
+Plumbum Metallicum  11 CH
+Plumbum Metallicum  199 CH
+Plumbum Metallicum  29 CH
+Plumbum Metallicum  29 CH
+Plumbum Metallicum  30 CH
+Plumbum Metallicum  999 FC
+Plumbum Metallicum  1 M
+Plumbum Metallicum  10 M
+Plumbum Metallicum  200FC
+Pneumococo  29ch
+Pneumococo  30ch
+Pneumococus 201ch
+Pneumococus 39ch
+Podophilo 5ch
+Podophyllum CH6
+Podophyllum CH7
+Podophylum  2ch
+Poeiras e Germes  
+Polen 29ch
+Polen 39ch
+Polen CH29
+Polen CH30
+Polen CH4
+Polen CH6
+Polen CH7
+Polygonium Punct  1ch
+Polygonium Punct  1d
+Polygonium Punct  6ch
+Populos Trem  3dh
+Populus Tremuloides CH1
+Praseodymium Metallicum 16CH
+Praseodymium Metallicum 16CH
+Praseodymium Muriaticum 6CH
+Praseodymium Muriaticum 6CH
+Praseodymium Oxydatum 7CH
+Praseodymium Oxydatum 7CH
+Praseodymium Phosphoricum 9CH
+Praseodymium Phosphoricum 9CH
+Prednisolona  2ch
+Prednisona  5ch
+Prednisona  
+Primus Spinosa  3ch
+Procainum 10 CH
+Procainum 11 CH
+Procainum 9 CH
+Progesterona  6ch
+Prolactina  29ch
+Propofol  1 m
+Propofol  10 M
+Propofol  12 CH
+Propofol  199 FC
+Propofol  200 CH
+Propofol  29 CH
+Propofol  30 CH
+Propofol  999 FC
+Propofol  9999 FC
+Propolis  4ch
+Propolis  5ch
+Prostata  11ch
+Prostata  149ch
+Prostata  8ch
+Prunus Spinosa  5 DH
+Prunus Spinosa  5 DH
+Psorinum  1 M
+Psorinum  10 M
+Psorinum  1000ch
+Psorinum  1m4
+Psorinum  1m6
+Psorinum  29ch
+Psorinum  30ch
+Psorinum  7lm
+Psorinum  8lm
+Psorinum  999 FC
+Psorinum  9999 FC
+Psorinum  9999 FC
+Psorinum  CH200
+Pulex Irritans  5CH
+Pulex Irritans  CH11 
+Pulex Irritans  CH19 
+Pulex Irritans  CH20 
+Pulex Irritans  CH29 
+Pulex Irritans  CH30 
+Pulex Irritans  CH6 
+Pulex Irritans  5CH
+Pulmao  9ch
+Pulmao Carneiro 2lm
+Pulmão Hist 30ch
+Pulmão Histaminum 1M
+Pulmo Histamine CH200
+Pulmo Histaminum  13 CH
+Pulmo Histaminum  199 CH
+Pulmo Histaminum  19ch
+Pulmo Histaminum  29 CH
+Pulmo Histaminum  999 FC
+Pulmo Histaminum  9999 FC
+Pulsatila 1 CH
+Pulsatila 12 CH
+Pulsatila 199 CH
+Pulsatila 2 CH
+Pulsatila 200 CH
+Pulsatila 28 CH
+Pulsatila 29 CH
+Pulsatila 3 CH
+Pulsatila 30 CH
+Pulsatila 30 CH
+Pulsatila 4 CH
+Pulsatila 5 CH
+Pulsatila 6 CH
+Pulsatila 6 CH
+Pulsatila 9 CH
+Pulsatilla  10m
+Pulsatilla  11ch
+Pulsatilla  12ch
+Pulsatilla  199ch
+Pulsatilla  1ch
+Pulsatilla  1ch
+Pulsatilla  1M
+Pulsatilla  1m30
+Pulsatilla  1m5
+Pulsatilla  2ch
+Pulsatilla  30ch
+Pulsatilla  30ch
+Pulsatilla  30ch
+Pulsatilla  5ch
+Pulsatilla  5ch
+Pulsatilla  6ch
+Pulsatilla  6lm
+Pulsatilla Nigricans  DH12
+Pulsatilla Nigricans  DH13
+Pulsatilla Nigricans  SD2
+Pulsatilla Nigricans  SD3
+Pulsatilla Nigricans  SD4
+Pulsatilla Nigricans  SD5
+Pusatila  11 CH
+Pyrogenium  11 CH
+Pyrogenium  199 CH
+Pyrogenium  29ch
+Pyrogenium  5ch
+Pyrogenium  999 FC
+Quebracho 3ch
+Quebracho 3ch
+Quebracho 3dh
+Quebracho 4d
+Quebracho 5d
+Quercus 1dh
+Quercus 2dh
+Quercus 6ch
+Quercus Glandibus 2ch
+Quercus Glandium Spiritus CH1
+Radium Brom 29ch
+Radium Bromatum 28 CH
+Ralwolfia 2d
+Ranunculus  3 CH
+Ranunculus  4 CH
+Ranunculus  5 CH
+Ranunculus Bulb 2ch
+Ranunculus Bulb 2ch
+Ranunculus Bulbosus CH5
+Ranunculus Bulbosus CH6
+Raphanus Sativus  3ch
+Ratania 19ch
+Ratania 5 CH
+Ratania 6 CH
+Rawolfia  CH1
+Rawolfia  CH11
+Rawolfia  CH12
+Rawolfia  CH19
+Rawolfia  CH3
+Rawolfia  CH30
+Rawolfia  CH5
+Rawolfia  CH6
+Rawolfia  CH1
+Rawolfia  CH3
+Rawolfia  CH5
+Rawolfia  CH6
+Rawolfia  CH11
+Rawolfia  CH12
+Rawolfia  CH19
+Rawolfia  CH30
+Rheum Palmatum  3CH
+Rhododendron  20ch
+Rhododendron  29d
+Rhododendron  3ch
+Rhododendron  5ch
+Rhododendron  6ch
+Rhus Tox  1 SD
+Rhus Tox  11ch
+Rhus Tox  11ch
+Rhus Tox  1ch
+Rhus Tox  2 SD
+Rhus Tox  28ch
+Rhus Tox  2ch
+Rhus Tox  2ch
+Rhus Tox  2d
+Rhus Tox  3 SD
+Rhus Tox  3ch
+Rhus Tox  3ch
+Rhus Tox  3ch
+Rhus Tox  3ch
+Rhus Tox  4 SD
+Rhus Tox  5 SD
+Rhus Tox  5ch
+Rhus Tox  5d
+Rhus Tox  5d
+Rhus Tox  6ch
+Rhus Tox  6ch
+Rhus Tox  d1
+Rhus Tox  d4
+Rhus Tox  tm
+Rhus Toxicodendro 1 M
+Rhus Toxicodendro 12 CH
+Rhus Toxicodendro 198 CH
+Rhus Toxicodendro 28 CH
+Rhus Toxicodendro 3 CH
+Rhus Toxicodendro 4 CH
+Rhus Toxicodendro 5 CH
+Rhus Toxicodendro 6 CH
+Rhus Toxicodendro 9 CH
+Rhus Toxicodendro Anacardium
+Rhus Toxicodendron  15 DH
+Rhus Toxicodendron  4 DH
+Rhus Toxicodendron  DH16
+Rhus Toxicodendron  DH17
+Rhus Toxicodendron  SD2
+Rhus Toxicodendron  SD3
+Rhus Toxicodendron  SD4
+Rhus Toxicodendron  SD5
+Ricinus Communis  13 DH
+Ricinus Communis  3ch
+Ricinus Communis  4 DH
+Ricinus Communis  DH13
+Ricinus Communis  DH14
+Rim 199 CH
+Rim 200 CH
+Rim 200 CH
+Rim 29 CH
+Rim 3 CH
+Rim 30 CH
+Ritalina  10c
+Ritalina  11ch
+Ritalina  16ch
+Ritalina  34ch
+Ritalina  CH10 
+Robina Fragillis  5 CH
+Robina Fragillis  6 CH
+Rosa Damascena  5CH
+Rosa Damascena  CH11
+Rosa Damascena  CH12
+Rosa Damascena  CH29
+Rosa Damascena  CH30
+Rosa Damascena  CH6
+Rubina  30ch
+rubina  30ch
+Ruibarbo  3 CH
+Rumex 5ch
+Rumex Crispus CH3
+Ruta  8ch
+Ruta Grav 5d
+Ruta Grav 6ch
+Ruta Graveolens 199 CH
+Ruta Graveolens 200 CH
+Ruta Graveolens 29ch
+Ruta Graveolens 29ch
+Ruta Graveolens 2dh
+Ruta Graveolens 3 CH
+Ruta Graveolens 4 CH
+Ruta Graveolens 4dh
+Ruta Graveolens 5 CH
+Ruta Graveolens 6 CH
+Ruta Graveolens 6ch
+Ruta Graveolens CH11
+Ruta Graveolens CH12
+Sabadilla 2 CH
+Sabadilla 29CH
+Sabadilla 30CH
+Sabadilla   11ch
+Sabadilla   21ch
+Sabadilla   2ch
+Sabadilla   2ch
+Sabadilla   6ch
+Sabadilla   9ch
+Sabal Ser 5d
+Sabal Ser 6dh
+Sabal Ser 7dh
+Sabal Ser 8ch
+Sabal Serrulata 29 CH
+Sabal Serrulata CH1
+Sabal Serrulata CH11
+Sabal Serrulata CH12
+Sabal Serrulata CH2
+Sabal Serrulata CH30
+Sabal Serrulata CH5
+Sabal Serrulata CH6
+Sabina  12ch
+Sabina  2ch
+Sabina  40ch
+Sabina  50ch
+Sabina  9ch
+Sabina Officinalis  29 CH
+Sabina Officinalis  5 CH
+Saccharum Officinalis 10 CH
+Saccharum Officinalis 11 CH
+Saccharum Officinalis 12 CH
+Saccharum Officinalis 12 CH
+Saccharum Officinalis 29 CH
+Saccharum Officinalis 29 CH
+Saccharum Officinalis 30 CH
+Saccharum Officinalis 30 CH
+Salix Nigra 29ch
+Salsaparilla  8ch
+Salsaparrilha CH11
+Salsaparrilha CH12
+Samarium Metallicum 9CH
+Samarium Metallicum 9CH
+Samarium Oxydatum 7CH
+Samarium Oxydatum 7CH
+Sambucus  1ch
+Sambucus  40ch
+Sambucus  5ch
+Sambucus  7ch
+Sambucus  8ch
+Sambucus  9ch
+Sambucus  CH29 
+Sambucus  CH30 
+Sambucus  CH31 
+Sambucus Nigra  4 CH
+Sambucus Nigra  4 CH
+Sambucus Nigra  5 CH
+Sambucus Nigra  CH11
+Sambucus Nigra  CH12
+Sangue De Drago CH1
+Sangue De Drago CH11
+Sangue De Drago CH12
+Sangue De Drago CH2
+Sangue De Drago CH3
+Sangue De Drago CH6
+Sangue De Drago DH1
+Sangue De Drago DH2
+Sangue De Drago DH3
+Sangue De Drago DH4
+Sangue De Drago DH5
+Sangue De Drago DH6
+Sanguinaria Canadensis  2dh
+Sanguinaria Canadensis  3D
+Sanguinaria Canadensis  6ch
+Sanguinaria Canadensis  CH6 
+Sarampo (Vac) 1 M
+Sarampo (Vac) 1.999 FC
+Sarampo (Vac) 10 M
+Sarampo (Vac) 12CH
+Sarampo (Vac) 199 FC
+Sarampo (Vac) 2.999 FC
+Sarampo (Vac) 200 FC
+Sarampo (Vac) 29CH
+Sarampo (Vac) 3.999 FC
+Sarampo (Vac) 30CH
+Sarampo (Vac) 4.999 FC
+Sarampo (Vac) 5.999 FC
+Sarampo (Vac) 6.999 FC
+Sarampo (Vac) 7.999 FC
+Sarampo (Vac) 8.999 FC
+Sarampo (Vac) 9.999 FC
+Sarampo (Vac) 999 FC
+Sarampo (Vac) 9CH
+Scilla Maritima 20ch
+Scilla Maritima 29ch
+Scilla Maritima 4ch
+Scilla Maritima 7ch
+Scirrhinum  13CH
+Scrophularia  6CH
+Secale Cornutum 29 CH
+Secale Cornutum 30 CH
+Secale Cornutum 5 CH
+Secale Cornutum 6 CH
+Secale Cornutum 6dh
+Selenium  11 CH
+Selenium  12 CH
+Selenium  28 CH
+Selenium  29ch
+Selenium  5 CH
+Selenium  5 CH
+Selenium  6 CH
+Selenium  9 CH
+Selenium  10 DH
+Selenium  11 DH
+Selenium  11 DH
+Selenium  12 DH
+Selenium  12 DH
+Selenium  9 DH
+Senega  CH4 
+Sepia 12ch
+Sepia 12lm
+Sepia 14lm
+Sepia 199ch
+Sepia 1M
+Sepia 1m5
+Sepia 200ch
+Sepia 200ch
+Sepia 201ch
+Sepia 202ch
+Sepia 50ch
+Sepia 5ch
+Sepia 5ch
+Sepia 6ch
+Sepia 9 DH
+Sepia 9999fc
+Sépia 1 Sd
+Sépia 2 SD
+Sépia 3 SD
+Sépia 4 SD
+Sépia 5 SD
+Sepia Officinalis 199 CH
+Sepia Officinalis 29 CH
+Sepia Officinalis 29 CH
+Sepia Officinalis 30 CH
+Sepia Officinalis 5 CH
+Sepia Officinalis 6 CH
+Sepia Succus  CH11
+Sepia Succus  CH12
+Sepia Succus  CH200
+Sepia Succus  CH30
+Sepia Succus  SD2
+Sepia Succus  SD3
+Sepia Succus  SD4
+Sepia Succus  SD5
+Serotonina  1 M
+Serotonina  10 CH
+Serotonina  10 M
+Serotonina  11 CH
+Serotonina  12 CH
+Serotonina  199 CH
+Serotonina  200 CH
+Serotonina  29 CH
+Serotonina  30 CH
+Serotonina  30 CH
+Serotonina  5 CH
+Serotonina  6 CH
+Serotonina  7 CH
+Serotonina  8 CH
+Serotonina  9 CH
+Serotonina  999 FC
+Serotonina  9999 FC
+Serotoninum 11ch
+Serotoninum 30ch
+Serotoninum 39ch
+Serum anguillae 11ch
+SHBG  1 M
+SHBG  10 M
+SHBG  199 FC
+SHBG  200 CH
+SHBG  33 CH
+SHBG  34 CH
+SHBG  999 FC
+SHBG  9999 FC
+Silicea 1007ch
+Silicea 100ch
+Silicea 11dh
+Silicea 12ch
+Silicea 12d
+Silicea 16d
+Silicea 18ch
+Silicea 19d
+Silicea 1m2
+Silicea 200ch
+Silicea 208ch
+Silicea 29ch
+Silicea 5ch
+Silicea 5m/50
+Silicea 5m70
+Silicea Terra CH11
+Silicea Terra CH12
+Silicea Terra CH29
+Silicea Terra CH30
+Silicea Terra DH17
+Silicea Terra DH18
+Silicea Terra SD2
+Silicea Terra SD3
+Silicea Terra SD4
+Silicea Terra SD5
+Silicia 10 DH
+Silicia 11 DH
+Silicia 12 DH
+Silicia 16 DH
+Silicia 16 DH
+Silicia 198 CH
+Silicia 199 CH
+Silicia 200 CH
+Silicia 5 CH
+Silicia 5 CH
+Silicia 6 CH
+Silicia 6 CH
+Silicia 9 DH
+Silícia 1 SD
+Silícia 2 SD
+Silícia 3 SD
+Silícia 4 SD
+Silícia 5 SD
+Silicone ( isto ) 1 M
+Silicone ( isto ) 10 M
+Silicone ( isto ) 199 FC
+Silicone ( isto ) 29 CH
+Silicone ( isto ) 30 CH
+Silicone ( isto ) 999 FC
+Silicone ( isto ) 9999 FC
+Silicone ( isto ) Solidago
+Silicone ( Isto)  9 CH
+Sinapis Nigra 
+Skookum Chuck 6ch
+Sllicium Verum  1ch
+Sllicium Verum  3ch
+Sllicium Verum  5ch
+Solanum 3ch
+Solanum 5ch
+Solanum Lycopersicum  CH4
+Solidago  5ch
+Spigélia  1 SD
+Spigélia  2 SD
+Spigélia  3 SD
+Spigélia  4 SD
+Spigélia  5 SD
+Spigelia A  5ch
+Spigelia Anthelmia  CH11
+Spigelia Anthelmia  CH12
+Spigelia Anthelmia  CH29
+Spigelia Anthelmia  CH30
+Spigelia Anthemia 1 CH
+Spigelia Anthemia 2 CH
+Spigelia Anthemia 3 CH
+Spigelia Anthemia 4 CH
+Spigelia Anthemia 5 CH
+Spigelia Anthemia 5 CH
+Spigelia Anthemia 6 CH
+Spongia Tosta 29ch
+Spongia Tosta 4ch
+Spongia Tosta CH30
+Sponja Tosta  5 CH
+Sponja Tosta  6 CH
+Stannum Metallicum  6CH
+Stannum Metallicum  CH11
+Stannum Metallicum  CH12
+Staphilococo  217ch
+Staphilococo  44ch
+Staphilococo  8ch
+Staphisagria  1dh
+Staphisagria  200ch
+Staphisagria  31ch
+Staphylococcinum  10M
+Staphylococcus  1 M
+Staphylococcus  10 M
+Staphylococcus  200CH
+Staphylococcus  30CH
+Staphylococinum 11ch
+Staphysagria  1 CH
+Staphysagria  1 SD
+Staphysagria  12ch
+Staphysagria  199 CH
+Staphysagria  199ch
+Staphysagria  1m1
+Staphysagria  2 SD
+Staphysagria  200 CH
+Staphysagria  29 CH
+Staphysagria  29 CH
+Staphysagria  3 SD
+Staphysagria  30 CH
+Staphysagria  30 CH
+Staphysagria  30ch
+Staphysagria  3dh
+Staphysagria  4 SD
+Staphysagria  5 CH
+Staphysagria  5 SD
+Staphysagria  6 CH
+Staphysagria  8 CH
+Staphysagria  9 CH
+Staphysagria  9000 FC
+Staphysagria  998fc
+Staphysagria  9999 FC
+Staphysagria  999 FC
+Staphysagria  SD1
+Staphysagria  SD2
+Staphysagria  SD3
+Staphysagria  SD4
+Staphysagria 1 1  1 M FC
+Stellaria Media 3ch
+Sticta Pulm 2d
+Stigmata  1ch
+Stigmata  2ch
+Stigmata  3ch
+Stillingia  CH6
+Stillingia  CH6
+Stillingia  CH6
+Stramonium  1 DH
+Stramonium  1 SD
+Stramonium  10 CH
+Stramonium  199 CH
+Stramonium  2 SD
+Stramonium  200 CH
+Stramonium  200 CH
+Stramonium  29 CH
+Stramonium  3 SD
+Stramonium  30 CH
+Stramonium  4 SD
+Stramonium  5 CH
+Stramonium  5 SD
+Stramonium  6 CH
+Stramonium  7 CH
+Stramonium  8 CH
+Stramonium  9 CH
+Stramonium  999 FC
+Stramonium  DH10
+Stramonium  DH9
+Stramonium  SD1
+Stramonium  SD2
+Stramonium  SD3
+Stramonium  SD4
+Stramonium  SD5
+Stramonium 1 1  1 M FC
+Stramoniuum 100ch
+Stramoniuum 200ch
+Stramoniuum 25ch
+Stramoniuum 29ch
+Stramoniuum 35ch
+Stramoniuum 5ch
+Stramoniuum 85ch
+Streptococcinum 10 M
+Streptococcinum 11ch
+Streptococcinum 199 CH
+Streptococcinum 29 CH
+Streptococcinum 30 CH
+Streptococcinum 999 FC
+Streptococcinum 9999 FC
+Streptococcus 1 M
+Streptococcus 10 M
+Streptococcus 199 FC
+Streptococcus 200 CH
+Streptococcus 29 CH
+Streptococcus 30 CH
+Streptococcus 999 FC
+Streptococcus 9999 FC
+Streptococus  30ch
+Strichininum  10ch
+Strichininum  29ch
+Strichininum  30ch
+Strichininum Phosp  5ch
+strongyloides Stercoralis 199 FC
+strongyloides Stercoralis 29 CH
+strongyloides Stercoralis 999 FC
+strongyloides Stercoralis 9999 FC
+Strontium metallicum  7ch
+Strophanthus  10ch
+Strophanthus  29ch
+Strophantus CH11
+Strophantus CH2 
+Strophantus CH30
+Strychinium 200ch
+Stugeron  10ch
+Stugeron  50ch
+Stugeron  60ch
+Stugeron  99ch
+Stugeron  CH30
+Sulfato de Aluminium  199 CH
+Sulfur  1 M
+Sulfur  10 DH
+Sulfur  10 DH
+Sulfur  11 CH
+Sulfur  11 DH
+Sulfur  11 DH
+Sulfur  12 CH
+Sulfur  12 DH
+Sulfur  12 DH
+Sulfur  29 CH
+Sulfur  29 CH
+Sulfur  5 CH
+Sulfur  5 CH
+Sulfur  5 CH
+Sulfur  9 CH
+Sulfur  9 DH
+Sulfur  9 DH
+Sulfur  9999 FC
+Sulfur  Anacardium
+Sulphur 1 SD
+Sulphur 100ch
+Sulphur 100ch
+Sulphur 10lm
+Sulphur 11ch
+Sulphur 11ch
+Sulphur 11lm
+Sulphur 12CH
+Sulphur 198ch
+Sulphur 1m/30
+Sulphur 2 SD
+Sulphur 200ch
+Sulphur 210ch
+Sulphur 29ch
+Sulphur 3 SD
+Sulphur 30069fc
+Sulphur 30ch
+Sulphur 4 SD
+Sulphur 5 SD
+Sulphur 5ch
+Sulphur 5ch
+Sulphur 60ch
+Sulphur 9dh
+Sulphur c29
+Sulphur 199FC
+Sulphur 200FC
+Sulphur CH30
+Sulphur CH6
+Sulphur SD2
+Sulphur SD3
+Sulphur SD4
+Sulphur SD5
+Sulphur Iodatum 12ch
+Sulphur Iodatum 5ch
+Sulphur Iodatum 6ch
+Suphur  300m250
+Symphitum 23ch
+Symphitum 2dh
+Symphitum 30ch
+Symphitum 3ch
+Symphitum 3d
+Symphitum 45ch
+Symphitum 4d
+Symphitum 5ch
+Symphitum 1 M
+Symphitum 199 FC
+Symphitum 999 FC
+Symphoricapus Racenosus 4ch
+Symphytum Officinalis 2 CH
+Symphytum Officinalis 3 CH
+Syphitum  35ch
+Syzigium Jamb 5ch
+Syzigium Jamb 7ch
+Syzygium Jamb 14ch
+Syzygium Jambolanum CH1
+Tabacum 100ch
+Tabacum 120ch
+Tabacum 130ch
+Tabacum 140ch
+Tabacum 150ch
+Tabacum 51ch
+Tabacum CH12
+Tabacum CH20
+Tabacum CH29
+Tabacum CH30
+Tabacum   11 CH
+Tarantula Hispanica 7 CH
+Tarantula Hispanica 
+Tarântula Hispanica 199 CH
+Tarântula Hispanica 200 CH
+Tarântula Hispanica 29 CH
+Tarântula Hispanica 30 CH
+Taraxacum 19ch
+Taraxacum 5ch
+Taraxacum 6CH
+Taraxacum Officinalis 11 CH
+Taraxacum Officinalis 12 CH
+Taraxacum Officinalis 199 CH
+Taraxacum Officinalis 29 CH
+Taraxacum Officinalis 30 CH
+Taraxacum Officinalis 5 CH
+Taraxacum Officinalis 6 CH
+Taraxacum Officinalis 9 CH
+TCM 8ch
+Testoterona ( Isto )  1 M
+Testoterona ( Isto )  10 M
+Testoterona ( Isto )  199 FC
+Testoterona ( Isto )  200 CH
+Testoterona ( Isto )  29 CH
+Testoterona ( Isto )  30 CH
+Testoterona ( Isto )  6 CH
+Testoterona ( Isto )  999 FC
+Testoterona ( Isto )  9999 FC
+Tetanotoxinum 199 FC
+Teucrim 145ch
+Teucrim 5ch
+Teucrim Mar Ver 3ch
+Teucrium Mar Ver  5 CH
+Teucrium Mar Ver  6 CH
+Theridion 14ch
+Theridium 10ch
+Theridium 12ch
+Thullium Metallicum 15CH
+Thullium Metallicum 15CH
+Thullium Muriaticum 9CH
+Thullium Muriaticum 9CH
+Thuya 1 SD
+Thuya 100ch
+Thuya 100ch
+Thuya 149ch
+Thuya 14ch
+Thuya 15dh
+Thuya 1d
+Thuya 1m5
+Thuya 2 SD
+Thuya 200ch
+Thuya 20d
+Thuya 29ch
+Thuya 29d
+Thuya 2ch
+Thuya 2ch
+Thuya 2ch
+Thuya 2d
+Thuya 3 SD
+Thuya 30ch
+Thuya 3ch
+Thuya 4 SD
+Thuya 4ch
+Thuya 5 SD
+Thuya 5ch
+Thuya 6ch
+Thuya 70ch
+Thuya 89ch
+Thuya 999fc
+Thuya 99ch
+Thuya ( occ)  1 CH
+Thuya ( occ)  11 CH
+Thuya ( occ)  12 CH
+Thuya ( occ)  17 CH
+Thuya ( occ)  18 CH
+Thuya ( occ)  198 CH
+Thuya ( occ)  199 CH
+Thuya ( occ)  2 CH
+Thuya ( occ)  200 CH
+Thuya ( occ)  28 CH
+Thuya ( occ)  3 CH
+Thuya ( occ)  30 CH
+Thuya ( occ)  30 CH
+Thuya ( occ)  5 CH
+Thuya ( occ)  6 CH
+Thuya ( occ)  7 CH
+Thuya ( occ)  8 CH
+Thuya ( occ)  9 CH
+Thuya Occidentalis  CH1
+Thuya Occidentalis  CH2
+Thuya Occidentalis  CH3
+Thuya Occidentalis  CH4
+Thuya Occidentalis  DH15
+Thuya Occidentalis  DH16
+Thuya Occidentalis  SD1
+Thuya Occidentalis  SD2
+Thuya Occidentalis  SD3
+Thuya Occidentalis  SD4
+Thuya Occidentalis  SD5
+Thymulina 9CH
+Thymulina 9CH
+Thymus Glandula 11 CH
+Thymus Glandula 12 CH
+Thymus Glandula 29 CH
+Thymus Glandula 30 CH
+Thymus vulgaris 2ch
+Thymus Vulgaris CH2
+Thymus Vulgaris CH3
+Thyreoidinum  10 DH
+Thyreoidinum  11ch
+Thyreoidinum  125ch
+Thyreoidinum  150ch
+Thyreoidinum  285ch
+Thyreoidinum  315ch
+Thyreoidinum  5ch
+Thyroidinum 1 M
+Thyroidinum 10 M
+Thyroidinum 11 CH
+Thyroidinum 12 CH
+Thyroidinum 198 CH
+Thyroidinum 199 CH
+Thyroidinum 200 CH
+Thyroidinum 29 CH
+Thyroidinum 30 CH
+Thyroidinum 999 FC
+Thyroidinum 9999 FC
+Timerosol 1 M
+Timerosol 10 M
+Timerosol 12 CH
+Timerosol 199 FC
+Timerosol 200 CH
+Timerosol 29 CH
+Timerosol 30 CH
+Timerosol 999 FC
+Timerosol 9999 FC
+Titanium Metalicum  7ch
+TK  1m/39
+TK  1M29
+TK  200ch
+Tk  224c
+TK  30ch
+TK  39ch
+TK  50ch
+TK  5CH
+TK  5ch
+Toxoplasma Gondhi 1 M
+Toxoplasma Gondhi 10 M
+Toxoplasma Gondhi 199 CH
+Toxoplasma Gondhi 199 CH
+Toxoplasma Gondhi 200 CH
+Toxoplasma Gondhi 29 CH
+Toxoplasma Gondhi 29 CH
+Toxoplasma Gondhi 30 CH
+Toxoplasma Gondhi 30 CH
+Toxoplasma Gondhi 999 FC
+Toxoplasma Gondhi 9999 FC
+Tribulus terrestris 11 CH
+Tribulus terrestris 12 CH
+Tribulus terrestris 29 CH
+Trillium Pendulum 5CH
+tub esc aviar 1005
+Tuberculinum  199 FC
+Tuberculinum ( TK ) 1 M
+Tuberculinum ( TK ) 10 M
+Tuberculinum ( TK ) 198 CH
+Tuberculinum ( TK ) 200 CH
+Tuberculinum ( TK ) 29 CH
+Tuberculinum ( TK ) 30 CH
+Tuberculinum ( TK ) 4 CH
+Tuberculinum ( TK ) 5 CH
+Tuberculinum ( TK ) 999 FC
+Tuberculinum ( TK ) 9999 FC
+Tuberculinum ( TK ) Anacardium
+Tuberculinum Avi  199ch
+Tuberculinum Avi  199ch
+Tuberculinum Avi  29ch
+Tuberculinum Avi  50ch
+Tuberculinum Avi  75ch
+Tuberculinum Avi  99ch
+Tyroidium 300ch
+Upas Tieute 14ch
+Uranium Metalicum 8ch
+Uranium Nitricum  19ch
+Uranium Nitricum  29ch
+Ureia CH10
+Ureia CH15
+Ureia CH19
+Ureia CH199
+Ureia CH200
+Ureia CH29
+Ureia CH30
+Ureia CH4
+Ureia CH9
+Urtica  1000 FC
+Urtica Urens  19ch
+Urtica Urens  29ch
+Urtica Urens  2dh
+Urtica Urens  7ch
+Urtica Urens  199FC
+Urtica Urens  200FC
+Urtica Urens  CH1
+Urtica Urens  CH2
+Urtica Urens  CH29
+Urtica Urens  CH5
+Urtica Urens  CH6
+Urucum  4ch
+Ustilago Maydes 4 CH
+Ustilago Maydes 5 CH
+Ustilago Maydes 6 CH
+Utero 19ch
+Utero 29ch
+Utero 30ch
+Uva Ursi  CH1 
+Vacina ACWY 13 CH
+Vacina ACWY 199 CH
+Vacina ACWY 200 CH
+Vacina ACWY 29 CH
+Vacina ACWY 999 FC
+Vacina ACWY 9999 FC
+Vacina Antirábica Canina  9ch
+Vacina Antitetanica 29ch
+Vacina BCG  199 CH
+Vacina BCG  CH 200
+Vacina Dengue 1 M
+Vacina Dengue 10 M
+Vacina Dengue 11 CH
+Vacina Dengue 12 CH
+Vacina Dengue 199 FC
+Vacina Dengue 200 CH
+Vacina Dengue 29 CH
+Vacina Dengue 30 CH
+Vacina Dengue 999 FC
+Vacina Dengue 9999 FC
+Vacina Febre  199FC
+Vacina Febre  200FC
+Vacina Hepatite A 199 FC
+Vacina Hepatite A 200 CH
+Vacina Hepatite B 199 CH
+Vacina Hexavalente  1 M
+Vacina Hexavalente  10 M
+Vacina Hexavalente  11 CH
+Vacina Hexavalente  12 Ch
+Vacina Hexavalente  199 Fc
+Vacina Hexavalente  200 CH
+Vacina Hexavalente  200 CH
+Vacina Hexavalente  29 CH
+Vacina Hexavalente  30 CH
+Vacina Hexavalente  999 FC
+Vacina Hexavalente  9999 FC
+Vacina Hib  199 FC
+Vacina Influenza Tetra  1 M
+Vacina Influenza Tetra  10 M
+Vacina Influenza Tetra  11 CH
+Vacina Influenza Tetra  12 CH
+Vacina Influenza Tetra  199 FC
+Vacina Influenza Tetra  200 CH
+Vacina Influenza Tetra  29 CH
+Vacina Influenza Tetra  30 CH
+Vacina Influenza Tetra  999 FC
+Vacina Influenza Tetra  9999 FC
+Vacina Meningocócica B  199FC
+Vacina Meningocócica B  200FC
+Vacina Meningocócica B  6CH
+Vacina Meningocócica B  CH11
+Vacina Meningocócica B  CH12
+Vacina Meningocócica B  CH29
+Vacina Miningite  199 CH
+Vacina Miningite  200 CH
+Vacina Pentavalente 199 CH
+Vacina Pentavalente 200 CH
+Vacina Pfizer CH29
+Vacina Pfizer CH30
+Vacina Pneumocócica 1 M
+Vacina Pneumocócica 10 M
+Vacina Pneumocócica 11 CH
+Vacina Pneumocócica 12 CH
+Vacina Pneumocócica 199 FC
+Vacina Pneumocócica 200 CH
+Vacina Pneumocócica 200 CH
+Vacina Pneumocócica 29 CH
+Vacina Pneumocócica 30 CH
+Vacina Pneumocócica 30 CH
+Vacina Pneumocócica 999 FC
+Vacina Pneumocócica 9999 FC
+Vacina Polio Sabin  199 CH
+Vacina Polio Sabin  200 CH
+Vacina Polio Salk 199 FC
+Vacina Polio Salk CH200
+Vacina Rotavirus  1 M
+Vacina Rotavirus  10 M
+Vacina Rotavirus  11 CH
+Vacina Rotavirus  12 CH
+Vacina Rotavirus  199 FC
+Vacina Rotavirus  200 CH
+Vacina Rotavirus  29 CH
+Vacina Rotavirus  30 CH
+Vacina Rotavirus  999 FC
+Vacina Rotavirus  9999 FC
+Vacina triplici 199 CH
+Vacina triplici 200 CH
+Valeriana 1 CH
+Valeriana 1 DH
+Valeriana 11 CH
+Valeriana 11ch
+Valeriana 11ch
+Valeriana 11d
+Valeriana 12 CH
+Valeriana 1ch
+Valeriana 2 CH
+Valeriana 2 DH
+Valeriana 2dh
+Valeriana 3 CH
+Valeriana 3 DH
+Valeriana 30ch
+Valeriana 5 CH
+Valeriana 5 DH
+Valeriana 5d
+Valeriana 6 CH
+Valeriana 6 DH
+Valeriana 6ch
+Valeriana 9 CH
+Valeriana 9 DH
+Vanadium  49ch
+Vanadium Met  19ch
+Vanadium Met  5ch
+Vanadium Metallicum 7ch
+Varicellinum  1 M
+Varicellinum  10 M
+Varicellinum  199 FC
+Varicellinum  200 CH
+Varicellinum  29 CH
+Varicellinum  30 CH
+Varicellinum  999 FC
+Varicellinum  9999 FC
+Vasopressina  1.999FC
+Vasopressina  10M
+Vasopressina  1M
+Vasopressina  2.999FC
+Vasopressina  3.999FC
+Vasopressina  4.999FC
+Vasopressina  5.999FC
+Vasopressina  6.999FC
+Vasopressina  7.999FC
+Vasopressina  8.999FC
+Vasopressina  9.999FC
+Vasopressina  999FC
+Vasopressina  CH12
+Vasopressina  CH199
+Vasopressina  CH20
+Vasopressina  CH200
+Vasopressina  CH29
+Vasopressina  CH30
+Veratrum  7ch
+Veratrum  20CH 
+Veratrum Album  1 SD
+Veratrum Album  11 CH
+Veratrum Album  12 CH
+Veratrum Album  12 CH
+Veratrum Album  2 SD
+Veratrum Album  3 SD
+Veratrum Album  30 CH
+Veratrum Album  4 CH
+Veratrum Album  4 SD
+Veratrum Album  5 CH
+Veratrum Album  5 CH
+Veratrum Album  5 SD
+Veratrum Album  6 CH
+Veratrum Album  9 CH
+Veratrum Album  DH19
+Veratrum Album  DH20
+Veratrum Album  SD2
+Veratrum Album  SD3
+Veratrum Album  SD4
+Veratrum Album  SD5
+Veratum Album 18 DH
+Veratum Album 19d
+Veratum Album 1m1
+Veratum Album 29ch
+Veratum Album 2ch
+Veratum Album 4 DH
+Veratum Album 5 DH
+Veratum Album 6 DH
+Veratum Album 95ch
+Veratum Album 999fc
+Veratum Viride  11ch
+Veratum Viridi  7ch
+Verbascum 3CH 
+Verbascum CH10 
+Verbascum CH29 
+Vespa Crabro  8CH
+Viburn Opulos 
+Viburn Opulos 
+Vinca menor 
+Viola Odorata 3CH
+Vipera Torva  CH7
+Viscum Album  1 DH
+Viscum Album  1 DH
+Viscum Album  10ch
+Viscum Album  17ch
+Viscum Album  2 DH
+Viscum Album  2ch
+Viscum Album  3 DH
+Viscum Album  3 DH
+Viscum Album  4 DH
+Viscum Album  4 DH
+Viscum Album  4 DH
+Viscum Album  5 DH
+Viscum Album  5ch
+Viscum Album  6 DH
+Viscum Album  7d
+Viscum Àlbum  4 CH
+Viscum Àlbum  6 CH
+Viscum Àlbum  7 CH
+Vitamina A  1 M
+Vitamina A  10 M
+Vitamina A  11 CH
+Vitamina A  199 FC
+Vitamina A  200 CH
+Vitamina A  29 CH
+Vitamina A  30 CH
+Vitamina A  999 FC
+Vitamina A  9999 FC
+Vonau (Ondansetrona)  1 M
+Vonau (Ondansetrona)  10 M
+Vonau (Ondansetrona)  200FC
+Xanthoxylum Fraxineum 4dh
+Xanthoxylum Fraxineum 5dh
+Xerophylum  10ch
+Yttrium Metallicum  16CH
+Yttrium Metallicum  16CH
+Zimcum Sulphuricum  12ch
+Zincum Met  6ch
+Zincum Metalicum  1 SD
+Zincum Metalicum  2 SD
+Zincum Metalicum  3 SD
+Zincum Metalicum  4 SD
+Zincum Metalicum  5 SD
+Zincum Metallicum 11 CH
+Zincum Metallicum 12 CH
+Zincum Metallicum 13 DH
+Zincum Metallicum 5 CH
+Zincum Metallicum 6 CH
+Zincum Metallicum 9 CH
+Zincum Mettallicum  5ch
+Zincum Phosphoricum CH8 
+Zincum Phosphoricum SD10 
+Zincum Phosphoricum SD8 
+Zincum Sulphuricum  9ch
+Zincum Valerianum 8ch
+Zingiber Officinalles 3 DH
+Zolpidem  1ch
+Zolpidem  6ch
+
+`;
+
+// ===============================
+
+// 🔧 NORMALIZA TEXTO (remove acento, minúsculo)
+function normalizar(texto) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+// 🔧 CONVERTE CSV PRA ARRAY
+let dados = csv
+  .replace(/"/g, "")
+  .replace(/\r/g, "")
+  .split(/[\n;,]+/)
+  .map(l => l.trim())
+  .filter(l => l !== "")
+  .map(l => ({
+    nome: l,
+    busca: normalizar(l)
+  }));
+
+// 🔧 MOSTRAR RESULTADOS
+function mostrarResultados(lista, termo = "") {
+  const div = document.getElementById("resultados");
+  div.innerHTML = "";
+
+  if (lista.length === 0) {
+    div.innerHTML = '<div class="vazio">Nenhum resultado encontrado</div>';
+    return;
+  }
+
+  lista.forEach(item => {
+    const el = document.createElement("div");
+    el.className = "resultado";
+
+    if (termo) {
+      const regex = new RegExp(`(${termo})`, "gi");
+      el.innerHTML = item.nome.replace(regex, "<b>$1</b>");
+    } else {
+      el.textContent = item.nome;
+    }
+
+    div.appendChild(el);
+  });
+}
+
+// 🔥 MOSTRA TODOS AO ABRIR (limitado)
+mostrarResultados(dados.slice(0, 6000));
+
+// 🔎 BUSCA
+document.getElementById("busca").addEventListener("input", function() {
+  const termoOriginal = this.value.trim();
+  const termo = normalizar(termoOriginal);
+
+  if (!termo) {
+    mostrarResultados(dados.slice(0, 6000));
+    return;
+  }
+
+  const filtrados = dados.filter(item =>
+    item.busca.includes(termo)
+  );
+
+  mostrarResultados(filtrados.slice(0, 200), termoOriginal);
+});
+
+</script>
+
+</body>
+</html>
